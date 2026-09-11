@@ -1,15 +1,292 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>alice_catarina_260911</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 4rem auto; padding: 0 1rem; line-height: 1.6; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fuga do Laboratório — Alice Catarina</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; background:#0b1020; color:#eaf0ff; font-family: system-ui, Segoe UI, Roboto, sans-serif; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+  header { width:100%; max-width:1000px; padding:12px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;}
+  h1 { font-size:18px; margin:0; }
+  h1 span { color:#7dd3fc; }
+  #hud { display:flex; gap:10px; flex-wrap:wrap; font-size:14px; }
+  .pill { background:#16213d; border:1px solid #2b3b66; padding:6px 10px; border-radius:999px; }
+  #staminaWrap { width:160px; height:10px; background:#222c4d; border-radius:99px; overflow:hidden; display:inline-block; vertical-align:middle; margin-left:6px;}
+  #staminaBar { height:100%; width:100%; background:linear-gradient(90deg,#22c55e,#a3e635); transition:width .15s; }
+  #wrap { position:relative; width:min(96vw,960px); }
+  canvas { width:100%; height:auto; background:#11162b; border:2px solid #2b3b66; border-radius:12px; display:block; }
+  #overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; background:rgba(5,8,20,.78); border-radius:12px; padding:20px; }
+  #overlay.hidden { display:none; }
+  #overlay .card { max-width:560px; background:#141c38; border:1px solid #33477a; border-radius:14px; padding:24px; }
+  button { background:#38bdf8; border:0; color:#04121f; font-weight:700; padding:10px 18px; border-radius:10px; cursor:pointer; font-size:15px; margin-top:12px;}
+  button:hover { background:#7dd3fc; }
+  #help { max-width:1000px; padding:10px 16px 30px; font-size:14px; line-height:1.6; color:#b9c6e8;}
+  kbd { background:#222c4d; border:1px solid #3b4f85; border-radius:6px; padding:1px 6px; font-size:12px;}
+  .legend { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;}
+</style>
 </head>
 <body>
-  <h1>alice_catarina_260911</h1>
-  <p>Site publicado via GitHub Pages.</p>
+<header>
+  <h1>🧪 Fuga do Laboratório — <span>Alice Catarina</span></h1>
+  <div id="hud">
+    <div class="pill">💳 Cartões <b id="hCards">0/3</b></div>
+    <div class="pill">💻 Terminais <b id="hTerms">0/3</b></div>
+    <div class="pill">🍬 Doces <b id="hCandy">0</b></div>
+    <div class="pill">❤️ Vidas <b id="hLives">3</b></div>
+    <div class="pill">⚡ Estamina <span id="staminaWrap"><span id="staminaBar"></span></span></div>
+    <div class="pill">⏱️ <b id="hTime">0s</b></div>
+  </div>
+</header>
+
+<div id="wrap">
+  <canvas id="game" width="960" height="600"></canvas>
+  <div id="overlay">
+    <div class="card">
+      <h2 id="ovTitle">Ajude a Alice a fugir!</h2>
+      <p id="ovText">Ela tem <b>cabelo azul</b>, <b>óculos roxo</b>, pele clara e <b>olhos rosa</b>.<br>
+      Os cientistas querem capturá-la.<br><br>
+      <b>Objetivos:</b> 1) Colete <b>3 cartões</b> 💳 &nbsp; 2) Hackeie <b>3 terminais</b> 💻 com <kbd>E</kbd> &nbsp; 3) Fuja pela <b>saída verde</b> 🚪<br>
+      <b>Estamina:</b> correr com <kbd>Shift</kbd> gasta. Coma <b>doces 🍬</b> para recuperar!</p>
+      <button id="btnStart">▶ Começar fuga</button>
+      <p style="font-size:12px;color:#8ea0c9">Mover: <kbd>WASD</kbd> / <kbd>Setas</kbd> • Correr: <kbd>Shift</kbd> • Interagir: <kbd>E</kbd></p>
+    </div>
+  </div>
+</div>
+
+<div id="help">
+  <div class="legend">
+    <span>💳 cartão abre terminal</span><span>💻 terminal hackeado fica verde</span><span>🍬 doce = +35 estamina</span><span>🥼 não deixe o cientista encostar!</span>
+  </div>
+  <p>Como jogar: explore o laboratório, desvie dos cientistas (eles patrulham e perseguem de perto). Sem estamina você anda devagar e não pode correr. Doces reaparecem com o tempo.</p>
+</div>
+
+<script>
+const cv = document.getElementById('game');
+const ctx = cv.getContext('2d');
+const W = 960, H = 600;
+
+// Labirinto: paredes como retangulos x,y,w,h
+const walls = [
+  {x:0,y:0,w:960,h:16},{x:0,y:584,w:960,h:16},{x:0,y:0,w:16,h:600},{x:944,y:0,w:16,h:600},
+  {x:120,y:80,w:240,h:18},{x:440,y:80,w:18,h:160},{x:540,y:80,w:240,h:18},
+  {x:120,y:200,w:18,h:160},{x:120,y:342,w:240,h:18},{x:440,y:240,w:200,h:18},
+  {x:200,y:430,w:300,h:18},{x:580,y:200,w:18,h:240},{x:660,y:340,w:200,h:18},
+  {x:660,y:120,w:18,h:140},{x:120,y:430,w:18,h:110},{x:580,y:430,w:280,h:18},
+  {x:760,y:430,w:18,h:154},{x:330,y:500,w:18,h:84},
+];
+
+const exitDoor = { x: 880, y: 500, w: 64, h: 84, open:false };
+
+let cards = [
+  {x:200,y:130,taken:false},
+  {x:700,y:130,taken:false},
+  {x:250,y:480,taken:false},
+];
+let terminals = [
+  {x:380,y:120,hacked:false},
+  {x:610,y:390,hacked:false},
+  {x:820,y:250,hacked:false},
+];
+let candies = [
+  {x:80,y:270},{x:500,y:140},{x:830,y:140},{x:180,y:390},
+  {x:520,y:300},{x:620,y:510},{x:400,y:550},{x:880,y:380},
+].map(c=>({...c,taken:false,timer:0}));
+
+const spawn = {x:60,y:60};
+const player = { x:spawn.x, y:spawn.y, r:16, stamina:100, lives:3, candy:0, cards:0, inv:0, face:1 };
+
+let scientists = [
+  {x:700,y:450,r:16,speed:1.6,patrol:[[700,450],[820,450],[820,520],[700,520]],pi:0},
+  {x:500,y:300,r:16,speed:1.75,patrol:[[300,260],[560,260],[560,380],[300,380]],pi:1},
+  {x:250,y:250,r:16,speed:1.9,patrol:[[170,250],[170,120],[380,120],[380,250]],pi:2},
+];
+
+let keys = {};
+let state = 'menu'; // menu | play | win | dead
+let startTime = 0, elapsed = 0;
+
+const hudCards=document.getElementById('hCards'), hudTerms=document.getElementById('hTerms'),
+hudCandy=document.getElementById('hCandy'), hudLives=document.getElementById('hLives'),
+bar=document.getElementById('staminaBar'), hudTime=document.getElementById('hTime'),
+overlay=document.getElementById('overlay'), ovTitle=document.getElementById('ovTitle'),
+ovText=document.getElementById('ovText'), btnStart=document.getElementById('btnStart');
+
+addEventListener('keydown',e=>{ keys[e.key.toLowerCase()]=true; if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase())) e.preventDefault(); if(e.key.toLowerCase()==='e') interact(); if(e.key==='Enter'&&(state==='win'||state==='dead')) restart(); });
+addEventListener('keyup',e=>{ keys[e.key.toLowerCase()]=false; });
+
+btnStart.onclick = ()=>{ restart(); };
+
+function restart(){
+  player.x=spawn.x; player.y=spawn.y; player.stamina=100; player.lives=3; player.candy=0; player.cards=0; player.inv=0;
+  cards.forEach(c=>c.taken=false); terminals.forEach(t=>t.hacked=false);
+  candies.forEach(c=>{c.taken=false;c.timer=0;});
+  scientists[0].x=700;scientists[0].y=450; scientists[1].x=500;scientists[1].y=300; scientists[2].x=250;scientists[2].y=250;
+  exitDoor.open=false; startTime=Date.now(); elapsed=0; state='play'; overlay.classList.add('hidden');
+}
+
+function collide(x,y,r){
+  for(const w of walls){ if(x+r>w.x&&x-r<w.x+w.w&&y+r>w.y&&y-r<w.y+w.h) return true; }
+  if(x<r+16||x>W-r-16||y<r+16||y>H-r-16) return true;
+  return false;
+}
+function moveWithCollision(o,nx,ny){
+  if(!collide(nx,o.y,o.r)) o.x=nx;
+  if(!collide(o.x,ny,o.r)) o.y=ny;
+}
+function dist(a,b){ return Math.hypot(a.x-b.x,a.y-b.y); }
+
+function interact(){
+  if(state!=='play') return;
+  // terminal próximo?
+  for(const t of terminals){
+    if(!t.hacked && Math.hypot(player.x-t.x,player.y-t.y)<52){
+      if(player.cards>0){ player.cards--; t.hacked=true; if(terminals.every(x=>x.hacked)) exitDoor.open=true; }
+      else { flashMsg('Você precisa de um cartão!'); }
+      return;
+    }
+  }
+}
+
+let msg='', msgT=0;
+function flashMsg(m){ msg=m; msgT=120; }
+
+function update(){
+  if(state!=='play') return;
+  elapsed = Math.floor((Date.now()-startTime)/1000);
+
+  let dx=0,dy=0;
+  if(keys['w']||keys['arrowup']) dy-=1;
+  if(keys['s']||keys['arrowdown']) dy+=1;
+  if(keys['a']||keys['arrowleft']) dx-=1;
+  if(keys['d']||keys['arrowright']) dx+=1;
+  const moving = dx||dy;
+  if(moving){ const l=Math.hypot(dx,dy); dx/=l; dy/=l; if(dx!==0) player.face=Math.sign(dx); }
+  const wantSprint = keys['shift'] && moving && player.stamina>1;
+  const speed = wantSprint ? 3.8 : (player.stamina<=0 ? 1.6 : 2.4);
+  if(wantSprint) player.stamina = Math.max(0, player.stamina - 25/60);
+  else player.stamina = Math.min(100, player.stamina + (moving?5:10)/60);
+
+  moveWithCollision(player, player.x+dx*speed, player.y+dy*speed);
+  if(player.inv>0) player.inv--;
+
+  // coletas
+  for(const c of cards){ if(!c.taken && dist(player,c)<26){ c.taken=true; player.cards++; } }
+  for(const c of candies){
+    if(c.taken){ c.timer--; if(c.timer<=0) c.taken=false; }
+    else if(dist(player,c)<24){ c.taken=true; c.timer=20*60; player.candy++; player.stamina=Math.min(100,player.stamina+35); }
+  }
+
+  // cientistas: patrulha ou persegue
+  for(const s of scientists){
+    const d = dist(s,player);
+    if(d<210){ // persegue
+      const a=Math.atan2(player.y-s.y,player.x-s.x);
+      moveWithCollision(s, s.x+Math.cos(a)*s.speed, s.y+Math.sin(a)*s.speed);
+    } else { // patrulha
+      const t=s.patrol[s.pi]; const a=Math.atan2(t[1]-s.y,t[0]-s.x);
+      moveWithCollision(s, s.x+Math.cos(a)*s.speed*0.6, s.y+Math.sin(a)*s.speed*0.6);
+      if(Math.hypot(t[0]-s.x,t[1]-s.y)<8) s.pi=(s.pi+1)%s.patrol.length;
+    }
+    if(d<30 && player.inv<=0){
+      player.lives--; player.inv=120; player.x=spawn.x; player.y=spawn.y; player.stamina=Math.max(player.stamina,50);
+      flashMsg(player.lives>0 ? 'Capturada! Você perdeu 1 vida.' : 'Capturada!');
+      if(player.lives<=0){ gameOver(false); }
+    }
+  }
+
+  // saída
+  if(exitDoor.open && player.x>exitDoor.x-10 && player.y>exitDoor.y-20){ gameOver(true); }
+
+  if(msgT>0) msgT--;
+  hudCards.textContent = player.cards + '/' + 3;
+  hudTerms.textContent = terminals.filter(t=>t.hacked).length + '/3';
+  hudCandy.textContent = player.candy;
+  hudLives.textContent = player.lives;
+  bar.style.width = player.stamina + '%';
+  hudTime.textContent = elapsed + 's';
+}
+
+function gameOver(win){
+  state = win ? 'win' : 'dead';
+  overlay.classList.remove('hidden');
+  if(win){ ovTitle.textContent='🎉 Você escapou em '+elapsed+'s!'; ovText.innerHTML='Alice hackeou todos os terminais e fugiu do laboratório.<br>Aperte <b>Enter</b> ou clique abaixo para jogar de novo.'; }
+  else { ovTitle.textContent='🧬 Capturada!'; ovText.innerHTML='Os cientistas capturaram a Alice.<br>Aperte <b>Enter</b> ou clique abaixo para tentar de novo.'; }
+  btnStart.textContent = '↻ Jogar novamente';
+}
+
+function drawPlayer(x,y){
+  ctx.save(); ctx.translate(x,y);
+  // sombra
+  ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0,14,14,5,0,0,7); ctx.fill();
+  // corpo
+  ctx.fillStyle='#38bdf8'; ctx.fillRect(-10,6,20,16);
+  // cabelo azul
+  ctx.fillStyle='#2563eb'; ctx.beginPath(); ctx.arc(0,-2,16,Math.PI*0.9,Math.PI*2.1); ctx.fill();
+  ctx.fillRect(-16,-6,6,20); ctx.fillRect(10,-6,6,20);
+  // rosto branco
+  ctx.fillStyle='#fff7f0'; ctx.beginPath(); ctx.arc(0,0,11,0,7); ctx.fill();
+  // olhos rosa
+  ctx.fillStyle='#ec4899'; ctx.beginPath(); ctx.arc(-4,0,2.6,0,7); ctx.arc(4,0,2.6,0,7); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-3.4,-0.8,0.9,0,7); ctx.arc(4.6,-0.8,0.9,0,7); ctx.fill();
+  // óculos roxo
+  ctx.strokeStyle='#a855f7'; ctx.lineWidth=2; ctx.strokeRect(-8,-4,7,7); ctx.strokeRect(1,-4,7,7);
+  ctx.beginPath(); ctx.moveTo(-1,-1); ctx.lineTo(1,-1); ctx.stroke();
+  if(player.inv>0 && Math.floor(Date.now()/150)%2===0) { ctx.globalAlpha=.4; }
+  ctx.restore();
+}
+function drawScientist(s){
+  ctx.save(); ctx.translate(s.x,s.y);
+  ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0,14,13,5,0,0,7); ctx.fill();
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(-11,2,22,20); // jaleco
+  ctx.fillStyle='#ef4444'; ctx.fillRect(-3,8,6,2);
+  ctx.fillStyle='#fcd9b8'; ctx.beginPath(); ctx.arc(0,-6,10,0,7); ctx.fill(); // cabeça
+  ctx.fillStyle='#334155'; ctx.fillRect(-10,-14,20,6); // cabelo grisalho
+  ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(-3.5,-5,1.6,0,7); ctx.arc(3.5,-5,1.6,0,7); ctx.fill();
+  ctx.strokeStyle='#111'; ctx.beginPath(); ctx.moveTo(-6,1); ctx.lineTo(6,1); ctx.stroke(); // boca brava
+  // olho de visão
+  ctx.strokeStyle='rgba(248,113,113,.5)'; ctx.beginPath(); ctx.arc(0,0,34,0,7); ctx.stroke();
+  ctx.restore();
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  // chão
+  ctx.fillStyle='#141a33'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#1f2a52'; ctx.lineWidth=1;
+  for(let x=0;x<W;x+=40){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for(let y=0;y<H;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  // paredes
+  ctx.fillStyle='#3b4a7a'; walls.forEach(w=>{ ctx.fillRect(w.x,w.y,w.w,w.h); ctx.fillStyle='#5b6fa8'; ctx.fillRect(w.x,w.y,w.w,4); ctx.fillStyle='#3b4a7a'; });
+  // saída
+  ctx.fillStyle = exitDoor.open ? '#22c55e' : '#52525b';
+  ctx.fillRect(exitDoor.x,exitDoor.y,exitDoor.w,exitDoor.h);
+  ctx.fillStyle='#fff'; ctx.font='bold 13px sans-serif'; ctx.textAlign='center';
+  ctx.fillText(exitDoor.open?'SAÍDA':'🔒', exitDoor.x+32, exitDoor.y+46);
+  // cartões
+  for(const c of cards){ if(c.taken) continue;
+    ctx.fillStyle='#facc15'; ctx.fillRect(c.x-9,c.y-6,18,12); ctx.fillStyle='#854d0e'; ctx.font='bold 10px sans-serif'; ctx.fillText('KEY',c.x,c.y+4);
+  }
+  // terminais
+  for(const t of terminals){
+    ctx.fillStyle = t.hacked ? '#22c55e' : '#0ea5e9';
+    ctx.fillRect(t.x-14,t.y-18,28,26); ctx.fillStyle='#020617'; ctx.fillRect(t.x-11,t.y-15,22,14);
+    ctx.fillStyle= t.hacked?'#4ade80':'#7dd3fc'; ctx.font='9px monospace'; ctx.fillText(t.hacked?'OK':'HACK',t.x,t.y-4);
+  }
+  // doces
+  for(const c of candies){ if(c.taken) continue;
+    ctx.font='18px serif'; ctx.fillText('🍬',c.x,c.y+6);
+  }
+  scientists.forEach(drawScientist);
+  drawPlayer(player.x,player.y);
+  // mensagem
+  if(msgT>0){ ctx.fillStyle='#fef08a'; ctx.font='bold 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(msg, W/2, 30); }
+  // dica terminal
+  for(const t of terminals){ if(!t.hacked && Math.hypot(player.x-t.x,player.y-t.y)<52){ ctx.fillStyle='#fff'; ctx.font='bold 13px sans-serif'; ctx.textAlign='center'; ctx.fillText(player.cards>0?'Pressione E para hackear':'Pegue um cartão!', t.x, t.y-26); } }
+}
+
+function loop(){ update(); draw(); requestAnimationFrame(loop); }
+loop();
+</script>
 </body>
 </html>
