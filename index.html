@@ -3,290 +3,267 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Fuga do Laboratório — Alice Catarina</title>
+<title>Fuga do Laboratório 3D — Alice Catarina</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
-  * { box-sizing: border-box; }
-  body { margin:0; background:#0b1020; color:#eaf0ff; font-family: system-ui, Segoe UI, Roboto, sans-serif; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
-  header { width:100%; max-width:1000px; padding:12px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;}
-  h1 { font-size:18px; margin:0; }
-  h1 span { color:#7dd3fc; }
-  #hud { display:flex; gap:10px; flex-wrap:wrap; font-size:14px; }
-  .pill { background:#16213d; border:1px solid #2b3b66; padding:6px 10px; border-radius:999px; }
-  #staminaWrap { width:160px; height:10px; background:#222c4d; border-radius:99px; overflow:hidden; display:inline-block; vertical-align:middle; margin-left:6px;}
-  #staminaBar { height:100%; width:100%; background:linear-gradient(90deg,#22c55e,#a3e635); transition:width .15s; }
-  #wrap { position:relative; width:min(96vw,960px); }
-  canvas { width:100%; height:auto; background:#11162b; border:2px solid #2b3b66; border-radius:12px; display:block; }
-  #overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; background:rgba(5,8,20,.78); border-radius:12px; padding:20px; }
-  #overlay.hidden { display:none; }
-  #overlay .card { max-width:560px; background:#141c38; border:1px solid #33477a; border-radius:14px; padding:24px; }
-  button { background:#38bdf8; border:0; color:#04121f; font-weight:700; padding:10px 18px; border-radius:10px; cursor:pointer; font-size:15px; margin-top:12px;}
-  button:hover { background:#7dd3fc; }
-  #help { max-width:1000px; padding:10px 16px 30px; font-size:14px; line-height:1.6; color:#b9c6e8;}
-  kbd { background:#222c4d; border:1px solid #3b4f85; border-radius:6px; padding:1px 6px; font-size:12px;}
-  .legend { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;}
+  *{box-sizing:border-box} body{margin:0;background:#070b18;color:#eaf0ff;font-family:system-ui,Segoe UI,Roboto,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;display:block}
+  #hud{position:fixed;top:0;left:0;right:0;display:flex;gap:8px;align-items:center;padding:10px 12px;flex-wrap:wrap;pointer-events:none;font-size:14px}
+  .pill{background:rgba(15,23,48,.85);border:1px solid #2b3b66;padding:6px 12px;border-radius:999px}
+  #stBarW{width:140px;height:10px;background:#222c4d;border-radius:99px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:6px}
+  #stBar{height:100%;width:100%;background:linear-gradient(90deg,#22c55e,#a3e635)}
+  #face{width:52px;height:52px;border-radius:50%;background:#fff7f0;border:3px solid #2563eb;position:relative;overflow:hidden;flex:none}
+  #face::before{content:'';position:absolute;top:-8px;left:-6px;right:-6px;height:28px;background:#2563eb;border-radius:0 0 20px 20px}
+  #face .eye{position:absolute;top:22px;width:9px;height:11px;background:#ec4899;border-radius:50%}
+  #face .eye.l{left:11px}#face .eye.r{right:11px}
+  #face .glass{position:absolute;top:19px;width:17px;height:16px;border:3px solid #a855f7;border-radius:4px}
+  #face .glass.l{left:6px}#face .glass.r{right:6px}
+  #cross{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;pointer-events:none;text-shadow:0 0 6px #000}
+  #prompt{position:fixed;left:50%;top:58%;transform:translateX(-50%);background:rgba(0,0,0,.7);padding:8px 16px;border-radius:10px;display:none;font-weight:700}
+  #dmg{position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,0,0,.55));display:none;pointer-events:none}
+  #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(4,7,18,.82);z-index:10;padding:16px}
+  #overlay.hidden{display:none}
+  .card{max-width:620px;background:#131b36;border:1px solid #33477a;border-radius:16px;padding:26px;text-align:center}
+  .aliceBig{width:110px;height:110px;border-radius:50%;background:#fff7f0;border:6px solid #2563eb;position:relative;margin:0 auto;overflow:hidden}
+  .aliceBig::before{content:'';position:absolute;top:-14px;left:-12px;right:-12px;height:58px;background:#2563eb;border-radius:0 0 40px 40px}
+  .aliceBig::after{content:'';position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:26px;height:10px;border-bottom:4px solid #ec4899;border-radius:0 0 20px 20px}
+  .ae{position:absolute;top:48px;width:16px;height:20px;background:#ec4899;border-radius:50%}
+  .ae.l{left:24px}.ae.r{right:24px}
+  .ag{position:absolute;top:42px;width:34px;height:30px;border:5px solid #a855f7;border-radius:8px}
+  .ag.l{left:12px}.ag.r{right:12px}
+  button{background:#38bdf8;border:0;color:#04121f;font-weight:800;padding:12px 22px;border-radius:10px;cursor:pointer;font-size:16px;margin-top:14px}
+  kbd{background:#222c4d;border:1px solid #3b4f85;border-radius:6px;padding:1px 7px;font-size:12px}
+  #touch{position:fixed;bottom:12px;left:0;right:0;display:none;justify-content:space-between;padding:0 14px;z-index:5}
+  #touch button{opacity:.85}
+  @media (pointer:coarse){#touch{display:flex}}
 </style>
 </head>
 <body>
-<header>
-  <h1>🧪 Fuga do Laboratório — <span>Alice Catarina</span></h1>
-  <div id="hud">
-    <div class="pill">💳 Cartões <b id="hCards">0/3</b></div>
-    <div class="pill">💻 Terminais <b id="hTerms">0/3</b></div>
-    <div class="pill">🍬 Doces <b id="hCandy">0</b></div>
-    <div class="pill">❤️ Vidas <b id="hLives">3</b></div>
-    <div class="pill">⚡ Estamina <span id="staminaWrap"><span id="staminaBar"></span></span></div>
-    <div class="pill">⏱️ <b id="hTime">0s</b></div>
-  </div>
-</header>
-
-<div id="wrap">
-  <canvas id="game" width="960" height="600"></canvas>
-  <div id="overlay">
-    <div class="card">
-      <h2 id="ovTitle">Ajude a Alice a fugir!</h2>
-      <p id="ovText">Ela tem <b>cabelo azul</b>, <b>óculos roxo</b>, pele clara e <b>olhos rosa</b>.<br>
-      Os cientistas querem capturá-la.<br><br>
-      <b>Objetivos:</b> 1) Colete <b>3 cartões</b> 💳 &nbsp; 2) Hackeie <b>3 terminais</b> 💻 com <kbd>E</kbd> &nbsp; 3) Fuja pela <b>saída verde</b> 🚪<br>
-      <b>Estamina:</b> correr com <kbd>Shift</kbd> gasta. Coma <b>doces 🍬</b> para recuperar!</p>
-      <button id="btnStart">▶ Começar fuga</button>
-      <p style="font-size:12px;color:#8ea0c9">Mover: <kbd>WASD</kbd> / <kbd>Setas</kbd> • Correr: <kbd>Shift</kbd> • Interagir: <kbd>E</kbd></p>
-    </div>
-  </div>
+<canvas id="c"></canvas>
+<div id="hud">
+  <div id="face"><div class="eye l"></div><div class="eye r"></div><div class="glass l"></div><div class="glass r"></div></div>
+  <div class="pill">💳 <b id="hCards">0/3</b></div>
+  <div class="pill">💻 <b id="hTerms">0/3</b></div>
+  <div class="pill">🍬 <b id="hCandy">0</b></div>
+  <div class="pill">❤️ <b id="hLives">3</b></div>
+  <div class="pill">⚡<span id="stBarW"><span id="stBar" style="display:block"></span></span></div>
+  <div class="pill">⏱️ <b id="hTime">0s</b></div>
 </div>
-
-<div id="help">
-  <div class="legend">
-    <span>💳 cartão abre terminal</span><span>💻 terminal hackeado fica verde</span><span>🍬 doce = +35 estamina</span><span>🥼 não deixe o cientista encostar!</span>
-  </div>
-  <p>Como jogar: explore o laboratório, desvie dos cientistas (eles patrulham e perseguem de perto). Sem estamina você anda devagar e não pode correr. Doces reaparecem com o tempo.</p>
-</div>
+<div id="cross">+</div>
+<div id="prompt"></div>
+<div id="dmg"></div>
+<div id="overlay"><div class="card">
+  <div class="aliceBig"><div class="ae l"></div><div class="ae r"></div><div class="ag l"></div><div class="ag r"></div></div>
+  <h2 id="ovTitle">Fuga do Laboratório 3D — 1ª pessoa</h2>
+  <p id="ovText">Você é a <b>Alice</b>: cabelo azul, óculos roxo, pele clara, olhos rosa.<br>
+  Fuja do laboratório em <b>primeira pessoa</b>!<br><br>
+  <b>1)</b> Pegue <b>3 cartões</b> 💳 &nbsp; <b>2)</b> Hackeie <b>3 terminais</b> 💻 com <kbd>E</kbd> &nbsp; <b>3)</b> Saia pela <b>porta verde</b> 🚪<br>
+  Corra com <kbd>Shift</kbd> (gasta estamina). Coma <b>doces 🍬</b> para recuperar. Não deixe os 🥼 encostarem!<br>
+  Mover <kbd>WASD</kbd> • Olhar mouse • <kbd>E</kbd> interagir</p>
+  <button id="btn">▶ Entrar no laboratório</button>
+</div></div>
+<div id="touch"><button id="tSprint">⚡ correr</button><button id="tUse">E usar</button></div>
 
 <script>
-const cv = document.getElementById('game');
-const ctx = cv.getContext('2d');
-const W = 960, H = 600;
+// ---------- base ----------
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setSize(innerWidth, innerHeight);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0f24);
+scene.fog = new THREE.Fog(0x0a0f24, 10, 70);
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 200);
+addEventListener('resize', ()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+scene.add(new THREE.AmbientLight(0x8899ff, 0.7));
+const lamp = new THREE.PointLight(0xffffff, 0.9, 90); lamp.position.set(20,8,10); scene.add(lamp);
 
-// Labirinto: paredes como retangulos x,y,w,h
-const walls = [
-  {x:0,y:0,w:960,h:16},{x:0,y:584,w:960,h:16},{x:0,y:0,w:16,h:600},{x:944,y:0,w:16,h:600},
-  {x:120,y:80,w:240,h:18},{x:440,y:80,w:18,h:160},{x:540,y:80,w:240,h:18},
-  {x:120,y:200,w:18,h:160},{x:120,y:342,w:240,h:18},{x:440,y:240,w:200,h:18},
-  {x:200,y:430,w:300,h:18},{x:580,y:200,w:18,h:240},{x:660,y:340,w:200,h:18},
-  {x:660,y:120,w:18,h:140},{x:120,y:430,w:18,h:110},{x:580,y:430,w:280,h:18},
-  {x:760,y:430,w:18,h:154},{x:330,y:500,w:18,h:84},
+// ---------- mapa ----------
+// mundo: x 0..96, z 0..60. paredes do jogo 2D convertidas (/10)
+const W2 = [
+  [0,0,960,16],[0,584,960,16],[0,0,16,600],[944,0,16,600],
+  [120,80,240,18],[440,80,18,160],[540,80,240,18],
+  [120,200,18,160],[120,342,240,18],[440,240,200,18],
+  [200,430,300,18],[580,200,18,240],[660,340,200,18],
+  [660,120,18,140],[120,430,18,110],[580,430,280,18],
+  [760,430,18,154],[330,500,18,84],
 ];
+const S = 10, H_WALL = 4;
+const wallMat = new THREE.MeshStandardMaterial({color:0x3b4a7a, roughness:.8});
+const wallTop = new THREE.MeshStandardMaterial({color:0x5b6fa8, emissive:0x223355});
+const solids = []; // {x0,z0,x1,z1}
+function addWall(px,py,pw,ph){
+  const w=pw/S, d=ph/S, x=px/S+w/2, z=py/S+d/2;
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,H_WALL,d), wallMat);
+  m.position.set(x,H_WALL/2,z); scene.add(m);
+  const t = new THREE.Mesh(new THREE.BoxGeometry(w,0.12,d), wallTop);
+  t.position.set(x,H_WALL+0.06,z); scene.add(t);
+  solids.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});
+}
+W2.forEach(w=>addWall(w[0],w[1],w[2],w[3]));
+// chão + teto luzes
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(96,60), new THREE.MeshStandardMaterial({color:0x141a33}));
+floor.rotation.x=-Math.PI/2; floor.position.set(48,0,30); scene.add(floor);
+const grid = new THREE.GridHelper(96, 48, 0x2b3b66, 0x1f2a52); grid.position.set(48,0.02,30); grid.scale.z=0.625; scene.add(grid);
+for(let i=0;i<12;i++){ const l=new THREE.Mesh(new THREE.BoxGeometry(4,0.1,1), new THREE.MeshBasicMaterial({color:0xbfe3ff})); l.position.set(8+i*7,3.9,10+(i%3)*18); scene.add(l); }
 
-const exitDoor = { x: 880, y: 500, w: 64, h: 84, open:false };
-
-let cards = [
-  {x:200,y:130,taken:false},
-  {x:700,y:130,taken:false},
-  {x:250,y:480,taken:false},
-];
-let terminals = [
-  {x:380,y:120,hacked:false},
-  {x:610,y:390,hacked:false},
-  {x:820,y:250,hacked:false},
-];
-let candies = [
-  {x:80,y:270},{x:500,y:140},{x:830,y:140},{x:180,y:390},
-  {x:520,y:300},{x:620,y:510},{x:400,y:550},{x:880,y:380},
-].map(c=>({...c,taken:false,timer:0}));
-
-const spawn = {x:60,y:60};
-const player = { x:spawn.x, y:spawn.y, r:16, stamina:100, lives:3, candy:0, cards:0, inv:0, face:1 };
-
-let scientists = [
-  {x:700,y:450,r:16,speed:1.6,patrol:[[700,450],[820,450],[820,520],[700,520]],pi:0},
-  {x:500,y:300,r:16,speed:1.75,patrol:[[300,260],[560,260],[560,380],[300,380]],pi:1},
-  {x:250,y:250,r:16,speed:1.9,patrol:[[170,250],[170,120],[380,120],[380,250]],pi:2},
-];
-
-let keys = {};
-let state = 'menu'; // menu | play | win | dead
-let startTime = 0, elapsed = 0;
-
-const hudCards=document.getElementById('hCards'), hudTerms=document.getElementById('hTerms'),
-hudCandy=document.getElementById('hCandy'), hudLives=document.getElementById('hLives'),
-bar=document.getElementById('staminaBar'), hudTime=document.getElementById('hTime'),
-overlay=document.getElementById('overlay'), ovTitle=document.getElementById('ovTitle'),
-ovText=document.getElementById('ovText'), btnStart=document.getElementById('btnStart');
-
-addEventListener('keydown',e=>{ keys[e.key.toLowerCase()]=true; if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase())) e.preventDefault(); if(e.key.toLowerCase()==='e') interact(); if(e.key==='Enter'&&(state==='win'||state==='dead')) restart(); });
+// ---------- estado ----------
+const P = { x:6, z:6, y:1.7, yaw:Math.PI*0.75, pitch:0, stamina:100, lives:3, cards:0, candy:0, inv:0 };
+let state='menu', startT=Date.now(), elapsed=0;
+const keys={}; let sprintTouch=false;
+addEventListener('keydown',e=>{ keys[e.key.toLowerCase()]=true; if(e.key.toLowerCase()==='e') interact(); if(e.key==='Enter'&&(state==='win'||state==='dead')) restart(); });
 addEventListener('keyup',e=>{ keys[e.key.toLowerCase()]=false; });
 
-btnStart.onclick = ()=>{ restart(); };
+// mouse look (pointer lock)
+let locked=false;
+document.getElementById('btn').onclick = ()=>{ restart(); canvas.requestPointerLock && canvas.requestPointerLock(); };
+canvas.onclick = ()=>{ if(state==='play') canvas.requestPointerLock && canvas.requestPointerLock(); };
+document.addEventListener('pointerlockchange', ()=>{ locked = document.pointerLockElement===canvas; });
+document.addEventListener('mousemove', e=>{
+  if(!locked || state!=='play') return;
+  P.yaw -= e.movementX*0.0024; P.pitch -= e.movementY*0.0022;
+  P.pitch = Math.max(-1.2, Math.min(1.2, P.pitch));
+});
+// touch look
+let lastT=null;
+canvas.addEventListener('touchmove', e=>{ const t=e.touches[0]; if(lastT&&state==='play'){ P.yaw-=(t.clientX-lastT.x)*0.006; P.pitch-=(t.clientY-lastT.y)*0.005; } lastT={x:t.clientX,y:t.clientY}; }, {passive:true});
+canvas.addEventListener('touchend', ()=>lastT=null);
+document.getElementById('tSprint').ontouchstart=e=>{e.preventDefault();sprintTouch=true}; 
+document.getElementById('tSprint').ontouchend=()=>sprintTouch=false;
+document.getElementById('tUse').ontouchstart=e=>{e.preventDefault();interact()};
 
-function restart(){
-  player.x=spawn.x; player.y=spawn.y; player.stamina=100; player.lives=3; player.candy=0; player.cards=0; player.inv=0;
-  cards.forEach(c=>c.taken=false); terminals.forEach(t=>t.hacked=false);
-  candies.forEach(c=>{c.taken=false;c.timer=0;});
-  scientists[0].x=700;scientists[0].y=450; scientists[1].x=500;scientists[1].y=300; scientists[2].x=250;scientists[2].y=250;
-  exitDoor.open=false; startTime=Date.now(); elapsed=0; state='play'; overlay.classList.add('hidden');
+// ---------- objetos ----------
+function px(x){return x/S} // 2D->mundo
+const cards=[], terms=[], candies=[], scis=[];
+const cardGeo=new THREE.OctahedronGeometry(0.35), cardMat=new THREE.MeshStandardMaterial({color:0xfacc15,emissive:0x7a5b00});
+[[200,130],[700,130],[250,480]].forEach(p=>{ const m=new THREE.Mesh(cardGeo,cardMat); m.position.set(px(p[0]),1.2,px(p[1])); scene.add(m); cards.push({m,taken:false}); });
+const termBodies=[];
+[[380,120],[610,390],[820,250]].forEach(p=>{
+  const g=new THREE.Group();
+  const body=new THREE.Mesh(new THREE.BoxGeometry(1.2,1.8,0.6), new THREE.MeshStandardMaterial({color:0x0ea5e9}));
+  body.position.y=0.9; g.add(body);
+  const scr=new THREE.Mesh(new THREE.PlaneGeometry(0.9,0.6), new THREE.MeshBasicMaterial({color:0x7dd3fc}));
+  scr.position.set(0,1.2,0.31); g.add(scr);
+  g.position.set(px(p[0]),0,px(p[1])); scene.add(g);
+  terms.push({g,scr,hacked:false});
+});
+const candyGeo=new THREE.TorusGeometry(0.3,0.14,10,18), candyMat=new THREE.MeshStandardMaterial({color:0xec4899,emissive:0x5b1030});
+[[80,270],[500,140],[830,140],[180,390],[520,300],[620,510],[400,550],[880,380]].forEach(p=>{
+  const m=new THREE.Mesh(candyGeo,candyMat); m.position.set(px(p[0]),1.1,px(p[1])); scene.add(m);
+  candies.push({m,taken:false,timer:0});
+});
+// saída
+const doorMat=new THREE.MeshStandardMaterial({color:0x52525b,emissive:0x111111});
+const door=new THREE.Mesh(new THREE.BoxGeometry(4,3.4,0.5), doorMat);
+door.position.set(90,1.7,54); scene.add(door);
+let doorOpen=false;
+const doorLight=new THREE.PointLight(0x22c55e,0,12); doorLight.position.set(90,2.5,53); scene.add(doorLight);
+
+// cientistas 3D (jaleco branco + cabeça)
+function makeScientist(){
+  const g=new THREE.Group();
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.55,1.4,10), new THREE.MeshStandardMaterial({color:0xf8fafc}));
+  body.position.y=0.9; g.add(body);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(0.32,14,12), new THREE.MeshStandardMaterial({color:0xfcd9b8}));
+  head.position.y=1.95; g.add(head);
+  const hair=new THREE.Mesh(new THREE.BoxGeometry(0.6,0.18,0.6), new THREE.MeshStandardMaterial({color:0x475569}));
+  hair.position.y=2.2; g.add(hair);
+  const eyeM=new THREE.MeshBasicMaterial({color:0xff0000});
+  [-0.11,0.11].forEach(x=>{ const e=new THREE.Mesh(new THREE.SphereGeometry(0.045,8,8),eyeM); e.position.set(x,1.97,0.29); g.add(e); });
+  scene.add(g); return g;
 }
+const patrols=[[[70,45],[82,45],[82,52],[70,52]],[[30,26],[56,26],[56,38],[30,38]],[[17,25],[17,12],[38,12],[38,25]]];
+[[70,45],[50,30],[25,25]].forEach((p,i)=>{ scis.push({m:makeScientist(),x:p[0],z:p[1],speed:3.2+i*0.4,pi:0,pat:patrols[i]}); });
 
-function collide(x,y,r){
-  for(const w of walls){ if(x+r>w.x&&x-r<w.x+w.w&&y+r>w.y&&y-r<w.y+w.h) return true; }
-  if(x<r+16||x>W-r-16||y<r+16||y>H-r-16) return true;
+function beep(f,d){ try{ const a=beep.ctx||(beep.ctx=new (window.AudioContext||window.webkitAudioContext)()); const o=a.createOscillator(),g=a.createGain(); o.frequency.value=f; o.connect(g); g.connect(a.destination); g.gain.setValueAtTime(0.15,a.currentTime); o.start(); o.stop(a.currentTime+d); }catch(e){} }
+
+function collide3(nx,nz){
+  const r=0.6;
+  if(nx<1.5||nx>94.5||nz<1.5||nz>58.5) return true;
+  for(const s of solids){ if(nx+r>s.x0&&nx-r<s.x1&&nz+r>s.z0&&nz-r<s.z1) return true; }
   return false;
 }
-function moveWithCollision(o,nx,ny){
-  if(!collide(nx,o.y,o.r)) o.x=nx;
-  if(!collide(o.x,ny,o.r)) o.y=ny;
-}
-function dist(a,b){ return Math.hypot(a.x-b.x,a.y-b.y); }
-
 function interact(){
   if(state!=='play') return;
-  // terminal próximo?
-  for(const t of terminals){
-    if(!t.hacked && Math.hypot(player.x-t.x,player.y-t.y)<52){
-      if(player.cards>0){ player.cards--; t.hacked=true; if(terminals.every(x=>x.hacked)) exitDoor.open=true; }
-      else { flashMsg('Você precisa de um cartão!'); }
+  for(const t of terms){
+    if(!t.hacked && Math.hypot(P.x-t.g.position.x,P.z-t.g.position.z)<3){
+      if(P.cards>0){ P.cards--; t.hacked=true; t.g.children[0].material=new THREE.MeshStandardMaterial({color:0x22c55e}); t.scr.material=new THREE.MeshBasicMaterial({color:0x4ade80}); beep(660,0.15);
+        if(terms.every(x=>x.hacked)){ doorOpen=true; door.material=new THREE.MeshStandardMaterial({color:0x22c55e,emissive:0x064e2b}); doorLight.intensity=2; showPrompt('Saída aberta! Corra!'); }
+      } else { showPrompt('Precisa de 1 cartão!'); beep(180,0.2); }
       return;
     }
   }
 }
+let promptT=null;
+function showPrompt(t){ const el=document.getElementById('prompt'); el.textContent=t; el.style.display='block'; clearTimeout(promptT); promptT=setTimeout(()=>el.style.display='none',2200); }
 
-let msg='', msgT=0;
-function flashMsg(m){ msg=m; msgT=120; }
+function restart(){
+  P.x=6;P.z=6;P.yaw=Math.PI*0.75;P.pitch=0;P.stamina=100;P.lives=3;P.cards=0;P.candy=0;P.inv=0;
+  cards.forEach(c=>{c.taken=false;c.m.visible=true}); terms.forEach(t=>{t.hacked=false;t.g.children[0].material=new THREE.MeshStandardMaterial({color:0x0ea5e9});t.scr.material=new THREE.MeshBasicMaterial({color:0x7dd3fc})});
+  candies.forEach(c=>{c.taken=false;c.timer=0;c.m.visible=true});
+  scis[0].x=70;scis[0].z=45;scis[1].x=50;scis[1].z=30;scis[2].x=25;scis[2].z=25;
+  doorOpen=false; door.material=doorMat; doorLight.intensity=0;
+  startT=Date.now(); state='play'; document.getElementById('overlay').classList.add('hidden');
+}
+function endGame(win){
+  state=win?'win':'dead'; document.exitPointerLock&&document.exitPointerLock();
+  const ov=document.getElementById('overlay'); ov.classList.remove('hidden');
+  document.getElementById('ovTitle').textContent = win?('🎉 Escapou em '+elapsed+'s!'):'🧬 Capturada!';
+  document.getElementById('ovText').innerHTML = win?'Alice hackeou tudo e fugiu! Clique para jogar de novo.':'Os cientistas capturaram a Alice. Clique para tentar de novo.';
+  document.getElementById('btn').textContent='↻ Jogar novamente';
+  beep(win?880:140,0.4);
+}
 
-function update(){
-  if(state!=='play') return;
-  elapsed = Math.floor((Date.now()-startTime)/1000);
-
-  let dx=0,dy=0;
-  if(keys['w']||keys['arrowup']) dy-=1;
-  if(keys['s']||keys['arrowdown']) dy+=1;
-  if(keys['a']||keys['arrowleft']) dx-=1;
-  if(keys['d']||keys['arrowright']) dx+=1;
-  const moving = dx||dy;
-  if(moving){ const l=Math.hypot(dx,dy); dx/=l; dy/=l; if(dx!==0) player.face=Math.sign(dx); }
-  const wantSprint = keys['shift'] && moving && player.stamina>1;
-  const speed = wantSprint ? 3.8 : (player.stamina<=0 ? 1.6 : 2.4);
-  if(wantSprint) player.stamina = Math.max(0, player.stamina - 25/60);
-  else player.stamina = Math.min(100, player.stamina + (moving?5:10)/60);
-
-  moveWithCollision(player, player.x+dx*speed, player.y+dy*speed);
-  if(player.inv>0) player.inv--;
-
-  // coletas
-  for(const c of cards){ if(!c.taken && dist(player,c)<26){ c.taken=true; player.cards++; } }
-  for(const c of candies){
-    if(c.taken){ c.timer--; if(c.timer<=0) c.taken=false; }
-    else if(dist(player,c)<24){ c.taken=true; c.timer=20*60; player.candy++; player.stamina=Math.min(100,player.stamina+35); }
-  }
-
-  // cientistas: patrulha ou persegue
-  for(const s of scientists){
-    const d = dist(s,player);
-    if(d<210){ // persegue
-      const a=Math.atan2(player.y-s.y,player.x-s.x);
-      moveWithCollision(s, s.x+Math.cos(a)*s.speed, s.y+Math.sin(a)*s.speed);
-    } else { // patrulha
-      const t=s.patrol[s.pi]; const a=Math.atan2(t[1]-s.y,t[0]-s.x);
-      moveWithCollision(s, s.x+Math.cos(a)*s.speed*0.6, s.y+Math.sin(a)*s.speed*0.6);
-      if(Math.hypot(t[0]-s.x,t[1]-s.y)<8) s.pi=(s.pi+1)%s.patrol.length;
+// ---------- loop ----------
+const hC=document.getElementById('hCards'),hT=document.getElementById('hTerms'),hCa=document.getElementById('hCandy'),hL=document.getElementById('hLives'),stB=document.getElementById('stBar'),hTi=document.getElementById('hTime'),dmg=document.getElementById('dmg');
+const clock=new THREE.Clock();
+function tick(){
+  requestAnimationFrame(tick);
+  const dt=Math.min(clock.getDelta(),0.05), t=clock.elapsedTime;
+  if(state==='play'){
+    elapsed=Math.floor((Date.now()-startT)/1000);
+    let f=0,s=0;
+    if(keys['w']||keys['arrowup'])f+=1; if(keys['s']||keys['arrowdown'])f-=1;
+    if(keys['d']||keys['arrowright'])s+=1; if(keys['a']||keys['arrowleft'])s-=1;
+    const moving=(f||s);
+    const wantSprint=(keys['shift']||sprintTouch)&&moving&&P.stamina>1;
+    const sp=wantSprint?7:(P.stamina<=0?2.6:4.4);
+    if(wantSprint)P.stamina=Math.max(0,P.stamina-25*dt); else P.stamina=Math.min(100,P.stamina+(moving?5:10)*dt);
+    const sin=Math.sin(P.yaw),cos=Math.cos(P.yaw);
+    let mx=(-sin*f+cos*s), mz=(-cos*f-sin*s);
+    if(moving){const l=Math.hypot(mx,mz);mx/=l;mz/=l;}
+    const nx=P.x+mx*sp*dt, nz=P.z+mz*sp*dt;
+    if(!collide3(nx,P.z))P.x=nx; if(!collide3(P.x,nz))P.z=nz;
+    if(P.inv>0){P.inv-=dt;dmg.style.display='none';}
+    camera.position.set(P.x,P.y+Math.sin(t*10)*0.03*(wantSprint?2:0),P.z);
+    camera.rotation.set(0,0,0); camera.rotation.order='YXZ'; camera.rotation.y=P.yaw; camera.rotation.x=P.pitch;
+    // anima coletáveis
+    cards.forEach(c=>{ if(!c.taken){c.m.rotation.y+=dt*2; if(Math.hypot(P.x-c.m.position.x,P.z-c.m.position.z)<1.2){c.taken=true;c.m.visible=false;P.cards++;beep(520,0.12);showPrompt('Cartão coletado! ('+P.cards+'/3)');}}});
+    candies.forEach(c=>{ if(c.taken){c.timer-=dt; if(c.timer<=0){c.taken=false;c.m.visible=true;}} else {c.m.rotation.y+=dt*2.5; c.m.position.y=1.1+Math.sin(t*3+c.m.position.x)*0.12; if(Math.hypot(P.x-c.m.position.x,P.z-c.m.position.z)<1.2){c.taken=true;c.timer=20;c.m.visible=false;P.candy++;P.stamina=Math.min(100,P.stamina+35);beep(740,0.12);}}});
+    terms.forEach(o=>{o.g.rotation.y=Math.sin(t+o.g.position.x)*0.08;});
+    // cientistas
+    for(const sc of scis){
+      const d=Math.hypot(P.x-sc.x,P.z-sc.z);
+      let vx,vz,vl;
+      if(d<16){ vx=P.x-sc.x; vz=P.z-sc.z; vl=Math.hypot(vx,vz)||1; vx/=vl; vz/=vl;
+        const nnx=sc.x+vx*sc.speed*dt, nnz=sc.z+vz*sc.speed*dt;
+        if(!collide3(nnx,sc.z))sc.x=nnx; if(!collide3(sc.x,nnz))sc.z=nnz;
+      } else { const wp=sc.pat[sc.pi]; vx=wp[0]-sc.x; vz=wp[1]-sc.z; vl=Math.hypot(vx,vz);
+        if(vl<0.6){sc.pi=(sc.pi+1)%sc.pat.length;} else {vx/=vl;vz/=vl; const nnx=sc.x+vx*sc.speed*0.5*dt,nnz=sc.z+vz*sc.speed*0.5*dt; if(!collide3(nnx,sc.z))sc.x=nnx; if(!collide3(sc.x,nnz))sc.z=nnz;} }
+      sc.m.position.set(sc.x,Math.abs(Math.sin(t*8+sc.x))*0.06,sc.z);
+      sc.m.rotation.y=Math.atan2(P.x-sc.x,P.z-sc.z);
+      if(d<1.3&&P.inv<=0){ P.lives--; P.inv=2; P.x=6;P.z=6;P.stamina=Math.max(P.stamina,50); dmg.style.display='block'; beep(120,0.35); if(P.lives<=0){endGame(false);} else showPrompt('Capturada! Vidas: '+P.lives); }
     }
-    if(d<30 && player.inv<=0){
-      player.lives--; player.inv=120; player.x=spawn.x; player.y=spawn.y; player.stamina=Math.max(player.stamina,50);
-      flashMsg(player.lives>0 ? 'Capturada! Você perdeu 1 vida.' : 'Capturada!');
-      if(player.lives<=0){ gameOver(false); }
-    }
+    if(doorOpen&&Math.hypot(P.x-90,P.z-54)<2.6){endGame(true);}
+    hC.textContent=P.cards+'/3'; hT.textContent=terms.filter(x=>x.hacked).length+'/3'; hCa.textContent=P.candy; hL.textContent=P.lives; stB.style.width=P.stamina+'%'; hTi.textContent=elapsed+'s';
+    // dica terminal
+    let near=null; for(const o of terms){if(!o.hacked&&Math.hypot(P.x-o.g.position.x,P.z-o.g.position.z)<3)near=o;}
+    const pr=document.getElementById('prompt');
+    if(near&&pr.style.display!=='block'){pr.textContent=P.cards>0?'Pressione E para hackear':'Pegue um cartão!';pr.style.display='block';clearTimeout(promptT);promptT=setTimeout(()=>pr.style.display='none',1500);}
   }
-
-  // saída
-  if(exitDoor.open && player.x>exitDoor.x-10 && player.y>exitDoor.y-20){ gameOver(true); }
-
-  if(msgT>0) msgT--;
-  hudCards.textContent = player.cards + '/' + 3;
-  hudTerms.textContent = terminals.filter(t=>t.hacked).length + '/3';
-  hudCandy.textContent = player.candy;
-  hudLives.textContent = player.lives;
-  bar.style.width = player.stamina + '%';
-  hudTime.textContent = elapsed + 's';
+  renderer.render(scene,camera);
 }
-
-function gameOver(win){
-  state = win ? 'win' : 'dead';
-  overlay.classList.remove('hidden');
-  if(win){ ovTitle.textContent='🎉 Você escapou em '+elapsed+'s!'; ovText.innerHTML='Alice hackeou todos os terminais e fugiu do laboratório.<br>Aperte <b>Enter</b> ou clique abaixo para jogar de novo.'; }
-  else { ovTitle.textContent='🧬 Capturada!'; ovText.innerHTML='Os cientistas capturaram a Alice.<br>Aperte <b>Enter</b> ou clique abaixo para tentar de novo.'; }
-  btnStart.textContent = '↻ Jogar novamente';
-}
-
-function drawPlayer(x,y){
-  ctx.save(); ctx.translate(x,y);
-  // sombra
-  ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0,14,14,5,0,0,7); ctx.fill();
-  // corpo
-  ctx.fillStyle='#38bdf8'; ctx.fillRect(-10,6,20,16);
-  // cabelo azul
-  ctx.fillStyle='#2563eb'; ctx.beginPath(); ctx.arc(0,-2,16,Math.PI*0.9,Math.PI*2.1); ctx.fill();
-  ctx.fillRect(-16,-6,6,20); ctx.fillRect(10,-6,6,20);
-  // rosto branco
-  ctx.fillStyle='#fff7f0'; ctx.beginPath(); ctx.arc(0,0,11,0,7); ctx.fill();
-  // olhos rosa
-  ctx.fillStyle='#ec4899'; ctx.beginPath(); ctx.arc(-4,0,2.6,0,7); ctx.arc(4,0,2.6,0,7); ctx.fill();
-  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-3.4,-0.8,0.9,0,7); ctx.arc(4.6,-0.8,0.9,0,7); ctx.fill();
-  // óculos roxo
-  ctx.strokeStyle='#a855f7'; ctx.lineWidth=2; ctx.strokeRect(-8,-4,7,7); ctx.strokeRect(1,-4,7,7);
-  ctx.beginPath(); ctx.moveTo(-1,-1); ctx.lineTo(1,-1); ctx.stroke();
-  if(player.inv>0 && Math.floor(Date.now()/150)%2===0) { ctx.globalAlpha=.4; }
-  ctx.restore();
-}
-function drawScientist(s){
-  ctx.save(); ctx.translate(s.x,s.y);
-  ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0,14,13,5,0,0,7); ctx.fill();
-  ctx.fillStyle='#f8fafc'; ctx.fillRect(-11,2,22,20); // jaleco
-  ctx.fillStyle='#ef4444'; ctx.fillRect(-3,8,6,2);
-  ctx.fillStyle='#fcd9b8'; ctx.beginPath(); ctx.arc(0,-6,10,0,7); ctx.fill(); // cabeça
-  ctx.fillStyle='#334155'; ctx.fillRect(-10,-14,20,6); // cabelo grisalho
-  ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(-3.5,-5,1.6,0,7); ctx.arc(3.5,-5,1.6,0,7); ctx.fill();
-  ctx.strokeStyle='#111'; ctx.beginPath(); ctx.moveTo(-6,1); ctx.lineTo(6,1); ctx.stroke(); // boca brava
-  // olho de visão
-  ctx.strokeStyle='rgba(248,113,113,.5)'; ctx.beginPath(); ctx.arc(0,0,34,0,7); ctx.stroke();
-  ctx.restore();
-}
-
-function draw(){
-  ctx.clearRect(0,0,W,H);
-  // chão
-  ctx.fillStyle='#141a33'; ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='#1f2a52'; ctx.lineWidth=1;
-  for(let x=0;x<W;x+=40){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
-  for(let y=0;y<H;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
-  // paredes
-  ctx.fillStyle='#3b4a7a'; walls.forEach(w=>{ ctx.fillRect(w.x,w.y,w.w,w.h); ctx.fillStyle='#5b6fa8'; ctx.fillRect(w.x,w.y,w.w,4); ctx.fillStyle='#3b4a7a'; });
-  // saída
-  ctx.fillStyle = exitDoor.open ? '#22c55e' : '#52525b';
-  ctx.fillRect(exitDoor.x,exitDoor.y,exitDoor.w,exitDoor.h);
-  ctx.fillStyle='#fff'; ctx.font='bold 13px sans-serif'; ctx.textAlign='center';
-  ctx.fillText(exitDoor.open?'SAÍDA':'🔒', exitDoor.x+32, exitDoor.y+46);
-  // cartões
-  for(const c of cards){ if(c.taken) continue;
-    ctx.fillStyle='#facc15'; ctx.fillRect(c.x-9,c.y-6,18,12); ctx.fillStyle='#854d0e'; ctx.font='bold 10px sans-serif'; ctx.fillText('KEY',c.x,c.y+4);
-  }
-  // terminais
-  for(const t of terminals){
-    ctx.fillStyle = t.hacked ? '#22c55e' : '#0ea5e9';
-    ctx.fillRect(t.x-14,t.y-18,28,26); ctx.fillStyle='#020617'; ctx.fillRect(t.x-11,t.y-15,22,14);
-    ctx.fillStyle= t.hacked?'#4ade80':'#7dd3fc'; ctx.font='9px monospace'; ctx.fillText(t.hacked?'OK':'HACK',t.x,t.y-4);
-  }
-  // doces
-  for(const c of candies){ if(c.taken) continue;
-    ctx.font='18px serif'; ctx.fillText('🍬',c.x,c.y+6);
-  }
-  scientists.forEach(drawScientist);
-  drawPlayer(player.x,player.y);
-  // mensagem
-  if(msgT>0){ ctx.fillStyle='#fef08a'; ctx.font='bold 16px sans-serif'; ctx.textAlign='center'; ctx.fillText(msg, W/2, 30); }
-  // dica terminal
-  for(const t of terminals){ if(!t.hacked && Math.hypot(player.x-t.x,player.y-t.y)<52){ ctx.fillStyle='#fff'; ctx.font='bold 13px sans-serif'; ctx.textAlign='center'; ctx.fillText(player.cards>0?'Pressione E para hackear':'Pegue um cartão!', t.x, t.y-26); } }
-}
-
-function loop(){ update(); draw(); requestAnimationFrame(loop); }
-loop();
+camera.position.set(P.x,P.y,P.z);
+tick();
 </script>
 </body>
 </html>
