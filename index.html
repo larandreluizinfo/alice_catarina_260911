@@ -3,267 +3,519 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Fuga do Laboratório 3D — Alice Catarina</title>
+<title>Harumi: Caça-Doces Halloween 2000 👻🍬</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
-  *{box-sizing:border-box} body{margin:0;background:#070b18;color:#eaf0ff;font-family:system-ui,Segoe UI,Roboto,sans-serif;overflow:hidden}
-  #c{position:fixed;inset:0;display:block}
-  #hud{position:fixed;top:0;left:0;right:0;display:flex;gap:8px;align-items:center;padding:10px 12px;flex-wrap:wrap;pointer-events:none;font-size:14px}
-  .pill{background:rgba(15,23,48,.85);border:1px solid #2b3b66;padding:6px 12px;border-radius:999px}
-  #stBarW{width:140px;height:10px;background:#222c4d;border-radius:99px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:6px}
-  #stBar{height:100%;width:100%;background:linear-gradient(90deg,#22c55e,#a3e635)}
-  #face{width:52px;height:52px;border-radius:50%;background:#fff7f0;border:3px solid #2563eb;position:relative;overflow:hidden;flex:none}
-  #face::before{content:'';position:absolute;top:-8px;left:-6px;right:-6px;height:28px;background:#2563eb;border-radius:0 0 20px 20px}
-  #face .eye{position:absolute;top:22px;width:9px;height:11px;background:#ec4899;border-radius:50%}
-  #face .eye.l{left:11px}#face .eye.r{right:11px}
-  #face .glass{position:absolute;top:19px;width:17px;height:16px;border:3px solid #a855f7;border-radius:4px}
-  #face .glass.l{left:6px}#face .glass.r{right:6px}
-  #cross{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;pointer-events:none;text-shadow:0 0 6px #000}
-  #prompt{position:fixed;left:50%;top:58%;transform:translateX(-50%);background:rgba(0,0,0,.7);padding:8px 16px;border-radius:10px;display:none;font-weight:700}
-  #dmg{position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,0,0,.55));display:none;pointer-events:none}
-  #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(4,7,18,.82);z-index:10;padding:16px}
+  @import url('https://fonts.googleapis.com/css2?family=Rubik+Bubbles&family=Verdana&display=swap');
+  *{box-sizing:border-box}
+  body{margin:0;background:#12041f;color:#fff;font-family:Verdana,Comic Sans MS,system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;display:block;image-rendering:pixelated}
+  /* VHS / anos 2000 overlay */
+  #vhs{position:fixed;inset:0;pointer-events:none;z-index:4;
+    background:repeating-linear-gradient(0deg,rgba(255,255,255,.045) 0 2px,transparent 2px 4px);
+    mix-blend-mode:overlay}
+  #vhs::after{content:'▶ SP 2003 • OCT 31 •  PM 11:59';position:absolute;top:54px;left:12px;color:#fff;
+    font-family:monospace;text-shadow:1px 1px 0 #f0f, -1px 0 0 #0ff;font-size:14px;opacity:.8}
+  #hud{position:fixed;top:0;left:0;right:0;display:flex;gap:8px;align-items:center;padding:8px 10px;flex-wrap:wrap;z-index:5;pointer-events:none;font-size:14px}
+  .pill{background:linear-gradient(180deg,#3b0a5e,#1c0533);border:3px outset #ff8c00;padding:6px 12px;border-radius:14px;
+    box-shadow:0 0 12px #ff6ec7, inset 0 0 8px #a855f7;font-weight:bold;text-shadow:1px 1px 0 #000}
+  .pill b{color:#ffe45e}
+  #face{width:56px;height:56px;border-radius:12px;border:3px outset #ff8c00;position:relative;overflow:hidden;flex:none;background:#fff}
+  #stars{position:fixed;inset:0;pointer-events:none;z-index:3}
+  #cross{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;pointer-events:none;text-shadow:0 0 6px #000;z-index:5}
+  #prompt{position:fixed;left:50%;top:60%;transform:translateX(-50%);background:rgba(0,0,0,.78);border:2px solid #ff8c00;
+    padding:8px 16px;border-radius:12px;display:none;font-weight:700;z-index:6;font-size:15px}
+  #talk{position:fixed;left:50%;top:22%;transform:translateX(-50%);background:#fff;color:#222;border:3px solid #000;
+    border-radius:14px;padding:8px 14px;display:none;z-index:6;font-weight:bold;max-width:80vw;text-align:center}
+  #dmg{position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,0,0,.6));display:none;pointer-events:none;z-index:6}
+  #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,2,22,.86);z-index:10;padding:14px;overflow:auto}
   #overlay.hidden{display:none}
-  .card{max-width:620px;background:#131b36;border:1px solid #33477a;border-radius:16px;padding:26px;text-align:center}
-  .aliceBig{width:110px;height:110px;border-radius:50%;background:#fff7f0;border:6px solid #2563eb;position:relative;margin:0 auto;overflow:hidden}
-  .aliceBig::before{content:'';position:absolute;top:-14px;left:-12px;right:-12px;height:58px;background:#2563eb;border-radius:0 0 40px 40px}
-  .aliceBig::after{content:'';position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:26px;height:10px;border-bottom:4px solid #ec4899;border-radius:0 0 20px 20px}
-  .ae{position:absolute;top:48px;width:16px;height:20px;background:#ec4899;border-radius:50%}
-  .ae.l{left:24px}.ae.r{right:24px}
-  .ag{position:absolute;top:42px;width:34px;height:30px;border:5px solid #a855f7;border-radius:8px}
-  .ag.l{left:12px}.ag.r{right:12px}
-  button{background:#38bdf8;border:0;color:#04121f;font-weight:800;padding:12px 22px;border-radius:10px;cursor:pointer;font-size:16px;margin-top:14px}
-  kbd{background:#222c4d;border:1px solid #3b4f85;border-radius:6px;padding:1px 7px;font-size:12px}
-  #touch{position:fixed;bottom:12px;left:0;right:0;display:none;justify-content:space-between;padding:0 14px;z-index:5}
-  #touch button{opacity:.85}
+  .card{max-width:700px;width:100%;background:linear-gradient(180deg,#2b0a54,#12041f);border:4px outset #ff8c00;border-radius:18px;
+    padding:22px;text-align:center;box-shadow:0 0 30px #ff6ec7, 0 0 60px #a855f7}
+  .y2k-title{font-family:'Rubik Bubbles',Comic Sans MS,cursive;font-size:34px;color:#ffe45e;
+    text-shadow:2px 2px 0 #ff6ec7, -2px -2px 0 #00e5ff, 0 0 18px #ff8c00;margin:6px 0;letter-spacing:1px}
+  .sub{color:#ffb3e6;font-size:14px}
+  .chars{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+  .char{width:150px;background:#1c0533;border:3px outset #a855f7;border-radius:14px;padding:10px;cursor:pointer;transition:transform .15s}
+  .char.sel{border-color:#ffe45e;box-shadow:0 0 16px #ffe45e;transform:scale(1.05)}
+  .char.locked{opacity:.55;filter:grayscale(1);cursor:not-allowed}
+  .char .doll{width:74px;height:74px;margin:0 auto;border-radius:12px;position:relative;overflow:hidden;border:2px solid #fff}
+  .char small{display:block;margin-top:6px;font-size:11px;color:#ffd1f2}
+  .char b{font-size:14px}
+  button{background:linear-gradient(180deg,#ffe45e,#ff8c00);border:3px outset #fff;color:#3b0a00;font-weight:900;
+    padding:12px 22px;border-radius:14px;cursor:pointer;font-size:16px;margin:6px;text-shadow:0 1px 0 #fff}
+  button.ghost{background:linear-gradient(180deg,#c084fc,#7c3aed);color:#fff;text-shadow:1px 1px 0 #000}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  kbd{background:#000;border:1px solid #ff8c00;border-radius:6px;padding:1px 7px;font-size:12px;color:#ffe45e}
+  .shop{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+  .item{background:#0008;border:2px dashed #ff8c00;border-radius:10px;padding:8px 10px;font-size:12px;min-width:150px}
+  #touch{position:fixed;bottom:12px;left:0;right:0;display:none;justify-content:space-between;padding:0 14px;z-index:7}
+  #touch button{opacity:.9;font-size:15px;padding:10px 14px}
   @media (pointer:coarse){#touch{display:flex}}
+  .blink{animation:bl 1s infinite}@keyframes bl{50%{opacity:.2}}
+  .marquee{background:#ff8c00;color:#000;font-weight:900;font-size:12px;padding:3px;white-space:nowrap;overflow:hidden}
+  .marquee span{display:inline-block;animation:mq 8s linear infinite}@keyframes mq{from{transform:translateX(100%)}to{transform:translateX(-100%)}}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div id="stars"></div>
+<div id="vhs"></div>
+<div class="marquee" style="position:fixed;bottom:0;left:0;right:0;z-index:5"><span>✦･ﾟ HARUMI HALLOWEEN 2000 ･ﾟ✦ &nbsp; CAÇA-DOCES NA RUA ASSOMBRADA &nbsp; 🍬 = MOEDA &nbsp; CUIDADO COM OS VELHOS RABUGENTOS 👴💢 &nbsp; DESBLOQUEIE PERSONAGENS ✦･ﾟ</span></div>
 <div id="hud">
-  <div id="face"><div class="eye l"></div><div class="eye r"></div><div class="glass l"></div><div class="glass r"></div></div>
-  <div class="pill">💳 <b id="hCards">0/3</b></div>
-  <div class="pill">💻 <b id="hTerms">0/3</b></div>
-  <div class="pill">🍬 <b id="hCandy">0</b></div>
+  <div id="face"></div>
+  <div class="pill">🎃 Fase <b id="hFase">1</b></div>
+  <div class="pill">🍬 <b id="hCandy">0</b> <span style="font-size:11px">/ meta <span id="hMeta">10</span></span></div>
+  <div class="pill">💰 Banco <b id="hBank">0</b></div>
   <div class="pill">❤️ <b id="hLives">3</b></div>
-  <div class="pill">⚡<span id="stBarW"><span id="stBar" style="display:block"></span></span></div>
-  <div class="pill">⏱️ <b id="hTime">0s</b></div>
+  <div class="pill">⚡<span style="display:inline-block;width:90px;height:10px;background:#222;border-radius:99px;overflow:hidden;vertical-align:middle;margin-left:6px"><span id="stBar" style="display:block;height:100%;background:linear-gradient(90deg,#22c55e,#ffe45e)"></span></span></div>
+  <div class="pill">👧 <b id="hChar">Harumi</b></div>
 </div>
 <div id="cross">+</div>
 <div id="prompt"></div>
+<div id="talk"></div>
 <div id="dmg"></div>
-<div id="overlay"><div class="card">
-  <div class="aliceBig"><div class="ae l"></div><div class="ae r"></div><div class="ag l"></div><div class="ag r"></div></div>
-  <h2 id="ovTitle">Fuga do Laboratório 3D — 1ª pessoa</h2>
-  <p id="ovText">Você é a <b>Alice</b>: cabelo azul, óculos roxo, pele clara, olhos rosa.<br>
-  Fuja do laboratório em <b>primeira pessoa</b>!<br><br>
-  <b>1)</b> Pegue <b>3 cartões</b> 💳 &nbsp; <b>2)</b> Hackeie <b>3 terminais</b> 💻 com <kbd>E</kbd> &nbsp; <b>3)</b> Saia pela <b>porta verde</b> 🚪<br>
-  Corra com <kbd>Shift</kbd> (gasta estamina). Coma <b>doces 🍬</b> para recuperar. Não deixe os 🥼 encostarem!<br>
-  Mover <kbd>WASD</kbd> • Olhar mouse • <kbd>E</kbd> interagir</p>
-  <button id="btn">▶ Entrar no laboratório</button>
-</div></div>
-<div id="touch"><button id="tSprint">⚡ correr</button><button id="tUse">E usar</button></div>
+<div id="overlay"><div class="card" id="ovCard"></div></div>
+<div id="touch"><div><button id="tSprint">⚡ correr</button></div><div><button id="tUse">E usar</button></div></div>
 
 <script>
-// ---------- base ----------
+// ==================== DADOS / SAVE ====================
+const CHARS = [
+ {id:'harumi', nome:'Harumi', desc:'Caveirinha ★ inicial', hair:'#16265e', eye:'#ff7ac8', dress:'#f8fafc', bonus:'+nada (ícone Y2K)', locked:false, lives:3, speed:1.0},
+ {id:'yuki', nome:'Yuki Bruxa', desc:'+15% velocidade', hair:'#6d28d9', eye:'#22d3ee', dress:'#7c3aed', bonus:'veloz', locked:true, lives:3, speed:1.15, need:'Vença Fase 1'},
+ {id:'ren', nome:'Ren Vampiro', desc:'+1 vida extra', hair:'#111111', eye:'#ff0000', dress:'#dc2626', bonus:'tank', locked:true, lives:4, speed:1.0, need:'Vença Fase 2'},
+ {id:'sora', nome:'Sora Abóbora', desc:'+doces magnéticos', hair:'#ff8c00', eye:'#65a30d', dress:'#ff8c00', bonus:'ímã 3m', locked:true, lives:3, speed:1.05, need:'Junte 40 🍬 no banco'},
+];
+const SHOP = [
+ {id:'lanterna', nome:'🔦 Lanterna Roxa', price:8, desc:'+luz (ver longe)'},
+ {id:'patins', nome:'🛼 Patins 2000', price:15, desc:'+20% velocidade'},
+ {id:'capa', nome:'💀 Capa Caveira', price:12, desc:'+1 vida na fase'},
+];
+let save = {bank:0, unlocked:['harumi'], items:[], fase:1};
+try{ const s = JSON.parse(localStorage.getItem('harumi_halloween2k')||'null'); if(s) save = Object.assign(save,s);}catch(e){}
+function persist(){ localStorage.setItem('harumi_halloween2k', JSON.stringify(save)); }
+let selChar = 'harumi';
+function charDef(){ return CHARS.find(c=>c.id===selChar); }
+function hasItem(id){ return save.items.includes(id); }
+
+// ==================== THREE BASE ====================
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
 renderer.setSize(innerWidth, innerHeight);
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0a0f24);
-scene.fog = new THREE.Fog(0x0a0f24, 10, 70);
-const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 200);
+scene.background = new THREE.Color(0x1a0533);
+scene.fog = new THREE.Fog(0x1a0533, 12, 70);
+const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 300);
 addEventListener('resize', ()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
-scene.add(new THREE.AmbientLight(0x8899ff, 0.7));
-const lamp = new THREE.PointLight(0xffffff, 0.9, 90); lamp.position.set(20,8,10); scene.add(lamp);
+scene.add(new THREE.AmbientLight(0xbb88ff, 0.75));
+const moonL = new THREE.DirectionalLight(0xcfd8ff, 0.5); moonL.position.set(30,40,-10); scene.add(moonL);
+const lampLight = new THREE.PointLight(0xff8c00, 1.1, 80); lampLight.position.set(48,7,30); scene.add(lampLight);
+let playerLight = new THREE.PointLight(0xa855f7, 0.9, 18); scene.add(playerLight);
 
-// ---------- mapa ----------
-// mundo: x 0..96, z 0..60. paredes do jogo 2D convertidas (/10)
-const W2 = [
-  [0,0,960,16],[0,584,960,16],[0,0,16,600],[944,0,16,600],
-  [120,80,240,18],[440,80,18,160],[540,80,240,18],
-  [120,200,18,160],[120,342,240,18],[440,240,200,18],
-  [200,430,300,18],[580,200,18,240],[660,340,200,18],
-  [660,120,18,140],[120,430,18,110],[580,430,280,18],
-  [760,430,18,154],[330,500,18,84],
-];
-const S = 10, H_WALL = 4;
-const wallMat = new THREE.MeshStandardMaterial({color:0x3b4a7a, roughness:.8});
-const wallTop = new THREE.MeshStandardMaterial({color:0x5b6fa8, emissive:0x223355});
-const solids = []; // {x0,z0,x1,z1}
-function addWall(px,py,pw,ph){
-  const w=pw/S, d=ph/S, x=px/S+w/2, z=py/S+d/2;
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w,H_WALL,d), wallMat);
-  m.position.set(x,H_WALL/2,z); scene.add(m);
-  const t = new THREE.Mesh(new THREE.BoxGeometry(w,0.12,d), wallTop);
-  t.position.set(x,H_WALL+0.06,z); scene.add(t);
-  solids.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});
+// pixel stars
+(function(){ const d=document.getElementById('stars'); let h=''; for(let i=0;i<70;i++){h+=`<span style="position:absolute;left:${Math.random()*100}%;top:${Math.random()*45}%;color:${['#ffe45e','#ff6ec7','#00e5ff'][i%3]};font-size:${8+Math.random()*10}px">✦</span>`;} d.innerHTML=h; })();
+
+// avatar HUD
+function drawFace(){
+  const c = charDef();
+  document.getElementById('face').innerHTML =
+   `<div style="position:absolute;inset:0;background:${c.hair}"></div>
+    <div style="position:absolute;left:8px;right:8px;top:20px;bottom:6px;background:#ffe9d2;border-radius:10px"></div>
+    <div style="position:absolute;left:14px;top:34px;width:10px;height:12px;background:${c.eye};border-radius:50%"></div>
+    <div style="position:absolute;right:14px;top:34px;width:10px;height:12px;background:${c.eye};border-radius:50%"></div>
+    <div style="position:absolute;left:50%;top:8px;transform:translateX(-50%);font-size:22px">💀</div>`;
+  document.getElementById('hChar').textContent = c.nome;
 }
-W2.forEach(w=>addWall(w[0],w[1],w[2],w[3]));
-// chão + teto luzes
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(96,60), new THREE.MeshStandardMaterial({color:0x141a33}));
-floor.rotation.x=-Math.PI/2; floor.position.set(48,0,30); scene.add(floor);
-const grid = new THREE.GridHelper(96, 48, 0x2b3b66, 0x1f2a52); grid.position.set(48,0.02,30); grid.scale.z=0.625; scene.add(grid);
-for(let i=0;i<12;i++){ const l=new THREE.Mesh(new THREE.BoxGeometry(4,0.1,1), new THREE.MeshBasicMaterial({color:0xbfe3ff})); l.position.set(8+i*7,3.9,10+(i%3)*18); scene.add(l); }
 
-// ---------- estado ----------
-const P = { x:6, z:6, y:1.7, yaw:Math.PI*0.75, pitch:0, stamina:100, lives:3, cards:0, candy:0, inv:0 };
-let state='menu', startT=Date.now(), elapsed=0;
-const keys={}; let sprintTouch=false;
-addEventListener('keydown',e=>{ keys[e.key.toLowerCase()]=true; if(e.key.toLowerCase()==='e') interact(); if(e.key==='Enter'&&(state==='win'||state==='dead')) restart(); });
-addEventListener('keyup',e=>{ keys[e.key.toLowerCase()]=false; });
-
-// mouse look (pointer lock)
-let locked=false;
-document.getElementById('btn').onclick = ()=>{ restart(); canvas.requestPointerLock && canvas.requestPointerLock(); };
-canvas.onclick = ()=>{ if(state==='play') canvas.requestPointerLock && canvas.requestPointerLock(); };
-document.addEventListener('pointerlockchange', ()=>{ locked = document.pointerLockElement===canvas; });
-document.addEventListener('mousemove', e=>{
-  if(!locked || state!=='play') return;
-  P.yaw -= e.movementX*0.0024; P.pitch -= e.movementY*0.0022;
-  P.pitch = Math.max(-1.2, Math.min(1.2, P.pitch));
-});
-// touch look
-let lastT=null;
-canvas.addEventListener('touchmove', e=>{ const t=e.touches[0]; if(lastT&&state==='play'){ P.yaw-=(t.clientX-lastT.x)*0.006; P.pitch-=(t.clientY-lastT.y)*0.005; } lastT={x:t.clientX,y:t.clientY}; }, {passive:true});
-canvas.addEventListener('touchend', ()=>lastT=null);
-document.getElementById('tSprint').ontouchstart=e=>{e.preventDefault();sprintTouch=true}; 
-document.getElementById('tSprint').ontouchend=()=>sprintTouch=false;
-document.getElementById('tUse').ontouchstart=e=>{e.preventDefault();interact()};
-
-// ---------- objetos ----------
-function px(x){return x/S} // 2D->mundo
-const cards=[], terms=[], candies=[], scis=[];
-const cardGeo=new THREE.OctahedronGeometry(0.35), cardMat=new THREE.MeshStandardMaterial({color:0xfacc15,emissive:0x7a5b00});
-[[200,130],[700,130],[250,480]].forEach(p=>{ const m=new THREE.Mesh(cardGeo,cardMat); m.position.set(px(p[0]),1.2,px(p[1])); scene.add(m); cards.push({m,taken:false}); });
-const termBodies=[];
-[[380,120],[610,390],[820,250]].forEach(p=>{
-  const g=new THREE.Group();
-  const body=new THREE.Mesh(new THREE.BoxGeometry(1.2,1.8,0.6), new THREE.MeshStandardMaterial({color:0x0ea5e9}));
-  body.position.y=0.9; g.add(body);
-  const scr=new THREE.Mesh(new THREE.PlaneGeometry(0.9,0.6), new THREE.MeshBasicMaterial({color:0x7dd3fc}));
-  scr.position.set(0,1.2,0.31); g.add(scr);
-  g.position.set(px(p[0]),0,px(p[1])); scene.add(g);
-  terms.push({g,scr,hacked:false});
-});
-const candyGeo=new THREE.TorusGeometry(0.3,0.14,10,18), candyMat=new THREE.MeshStandardMaterial({color:0xec4899,emissive:0x5b1030});
-[[80,270],[500,140],[830,140],[180,390],[520,300],[620,510],[400,550],[880,380]].forEach(p=>{
-  const m=new THREE.Mesh(candyGeo,candyMat); m.position.set(px(p[0]),1.1,px(p[1])); scene.add(m);
-  candies.push({m,taken:false,timer:0});
-});
-// saída
-const doorMat=new THREE.MeshStandardMaterial({color:0x52525b,emissive:0x111111});
-const door=new THREE.Mesh(new THREE.BoxGeometry(4,3.4,0.5), doorMat);
-door.position.set(90,1.7,54); scene.add(door);
-let doorOpen=false;
-const doorLight=new THREE.PointLight(0x22c55e,0,12); doorLight.position.set(90,2.5,53); scene.add(doorLight);
-
-// cientistas 3D (jaleco branco + cabeça)
-function makeScientist(){
-  const g=new THREE.Group();
-  const body=new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.55,1.4,10), new THREE.MeshStandardMaterial({color:0xf8fafc}));
-  body.position.y=0.9; g.add(body);
-  const head=new THREE.Mesh(new THREE.SphereGeometry(0.32,14,12), new THREE.MeshStandardMaterial({color:0xfcd9b8}));
-  head.position.y=1.95; g.add(head);
-  const hair=new THREE.Mesh(new THREE.BoxGeometry(0.6,0.18,0.6), new THREE.MeshStandardMaterial({color:0x475569}));
-  hair.position.y=2.2; g.add(hair);
-  const eyeM=new THREE.MeshBasicMaterial({color:0xff0000});
-  [-0.11,0.11].forEach(x=>{ const e=new THREE.Mesh(new THREE.SphereGeometry(0.045,8,8),eyeM); e.position.set(x,1.97,0.29); g.add(e); });
+// ==================== PERSONAGENS 3D ====================
+function makeGirl(def){
+  const g = new THREE.Group();
+  const skin = new THREE.MeshStandardMaterial({color:0xffe0c4});
+  const hairM = new THREE.MeshStandardMaterial({color:new THREE.Color(def.hair)});
+  const dressM = new THREE.MeshStandardMaterial({color:new THREE.Color(def.dress), roughness:.7});
+  // pernas
+  const legM = new THREE.MeshStandardMaterial({color:0x1f1033});
+  [-0.16,0.16].forEach(x=>{ const l=new THREE.Mesh(new THREE.BoxGeometry(0.22,0.7,0.22),legM); l.position.set(x,0.35,0); g.add(l); });
+  // vestido caveira
+  const dress = new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.6,0.9,10), dressM); dress.position.y=1.1; g.add(dress);
+  // caveirinha no vestido
+  const sk = new THREE.Mesh(new THREE.SphereGeometry(0.18,10,8), new THREE.MeshStandardMaterial({color:0xffffff}));
+  sk.position.set(0,1.2,0.42); g.add(sk);
+  [-0.06,0.06].forEach(x=>{ const e=new THREE.Mesh(new THREE.SphereGeometry(0.04,6,6),new THREE.MeshBasicMaterial({color:0x000000})); e.position.set(x,1.24,0.58); g.add(e); });
+  // braços
+  [-0.5,0.5].forEach(x=>{ const a=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.6,0.16),skin); a.position.set(x,1.25,0); g.add(a); });
+  // cabeça
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.34,14,12), skin); head.position.y=1.95; g.add(head);
+  // cabelo azul-marinho volumoso anos 2000
+  const hair = new THREE.Mesh(new THREE.BoxGeometry(0.85,0.5,0.8), hairM); hair.position.y=2.22; g.add(hair);
+  [-0.45,0.45].forEach(x=>{ const p=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.9,0.25),hairM); p.position.set(x,1.75,0); g.add(p); });
+  // franja
+  const fr = new THREE.Mesh(new THREE.BoxGeometry(0.7,0.22,0.1), hairM); fr.position.set(0,2.12,0.3); g.add(fr);
+  // olhos rosados grandes
+  [-0.13,0.13].forEach(x=>{ const e=new THREE.Mesh(new THREE.SphereGeometry(0.075,8,8), new THREE.MeshBasicMaterial({color:new THREE.Color(def.eye)})); e.position.set(x,1.97,0.3); g.add(e);
+    const w=new THREE.Mesh(new THREE.SphereGeometry(0.025,6,6), new THREE.MeshBasicMaterial({color:0xffffff})); w.position.set(x+0.02,2.0,0.36); g.add(w); });
+  // pintinha caveira na bochecha
+  const mk = new THREE.Mesh(new THREE.PlaneGeometry(0.12,0.12), new THREE.MeshBasicMaterial({color:0x000000, transparent:true, opacity:.85}));
+  mk.position.set(0.2,1.82,0.29); g.add(mk);
+  // tiara caveira
+  const ti = new THREE.Mesh(new THREE.TorusGeometry(0.34,0.05,8,16,Math.PI), new THREE.MeshStandardMaterial({color:0xffffff}));
+  ti.position.y=2.32; g.add(ti);
   scene.add(g); return g;
 }
-const patrols=[[[70,45],[82,45],[82,52],[70,52]],[[30,26],[56,26],[56,38],[30,38]],[[17,25],[17,12],[38,12],[38,25]]];
-[[70,45],[50,30],[25,25]].forEach((p,i)=>{ scis.push({m:makeScientist(),x:p[0],z:p[1],speed:3.2+i*0.4,pi:0,pat:patrols[i]}); });
+function makeOldMan(){
+  const g = new THREE.Group();
+  const coat = new THREE.MeshStandardMaterial({color:0x5b4a2f});
+  const skin = new THREE.MeshStandardMaterial({color:0xe8b88a});
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.62,1.4,10), coat); body.position.y=0.9; g.add(body);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.34,12,10), skin); head.position.y=1.95; g.add(head);
+  // cabelo grisalho + boina
+  const hair = new THREE.Mesh(new THREE.BoxGeometry(0.66,0.16,0.66), new THREE.MeshStandardMaterial({color:0xcccccc})); hair.position.y=2.18; g.add(hair);
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.08,8,8), skin); nose.position.set(0,1.9,0.34); g.add(nose);
+  // sobrancelhas bravas
+  [-0.13,0.13].forEach((x,i)=>{ const b=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.05,0.03), new THREE.MeshBasicMaterial({color:0x333333})); b.position.set(x,2.04,0.32); b.rotation.z = i? -0.5: 0.5; g.add(b); });
+  [-0.11,0.11].forEach(x=>{ const e=new THREE.Mesh(new THREE.SphereGeometry(0.045,6,6), new THREE.MeshBasicMaterial({color:0xff0000})); e.position.set(x,1.97,0.3); g.add(e); });
+  // bengala
+  const cane = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,1.3,6), new THREE.MeshStandardMaterial({color:0x8b5a2b})); cane.position.set(0.6,0.65,0.1); g.add(cane);
+  // balão de fala
+  const cv = document.createElement('canvas'); cv.width=256; cv.height=128;
+  const tg = new THREE.CanvasTexture(cv);
+  const bal = new THREE.Sprite(new THREE.SpriteMaterial({map:tg, depthTest:false})); bal.scale.set(2.6,1.3,1); bal.position.y=3.1; g.add(bal);
+  g.userData = {cv, tg, bal};
+  scene.add(g); return g;
+}
+const RUDE = ['SAI DA MINHA CALÇADA! 💢','Doces? NA MINHA ÉPOCA NÃO TINHA!','Vou chamar a polícia! 👴','Esses jovens... 😤','APAGUEM ESSA LANTERNA!','HALLOWEEN É COISA DO DEMO!'];
+function setBubble(g, txt){
+  const {cv, tg} = g.userData; const ctx = cv.getContext('2d');
+  ctx.clearRect(0,0,256,128); ctx.fillStyle='#fff'; ctx.strokeStyle='#000'; ctx.lineWidth=6;
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(6,6,244,90,18) : ctx.rect(6,6,244,90); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#111'; ctx.font='bold 20px Verdana'; ctx.textAlign='center';
+  const words = txt.split(' '); let lines=[''], li=0;
+  words.forEach(w=>{ if((lines[li]+' '+w).length>16){li++;lines[li]='';} lines[li]+=w+' '; });
+  lines.slice(0,3).forEach((l,i)=>ctx.fillText(l,128,36+i*24));
+  tg.needsUpdate = true;
+}
 
-function beep(f,d){ try{ const a=beep.ctx||(beep.ctx=new (window.AudioContext||window.webkitAudioContext)()); const o=a.createOscillator(),g=a.createGain(); o.frequency.value=f; o.connect(g); g.connect(a.destination); g.gain.setValueAtTime(0.15,a.currentTime); o.start(); o.stop(a.currentTime+d); }catch(e){} }
+// ==================== MUNDO ====================
+let solids=[], candies=[], foes=[], decos=[], portal=null, exitDoor=null, levelGroup=null;
+const P = {x:6,z:8,yaw:Math.PI*0.7,pitch:-0.15,stamina:100,lives:3,got:0,inv:0};
+let state='menu', level=1, meta=10, startT=Date.now();
+const keys={}; let sprintTouch=false;
 
-function collide3(nx,nz){
+function clearLevel(){ if(levelGroup){ scene.remove(levelGroup); } solids=[]; candies=[]; foes=[]; decos=[]; portal=null; exitDoor=null;
+  levelGroup = new THREE.Group(); scene.add(levelGroup); }
+function addSolid(x,z,w,d,h,color){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), new THREE.MeshStandardMaterial({color}));
+  m.position.set(x,h/2,z); levelGroup.add(m);
+  solids.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});
+}
+function ground(color){
+  const f = new THREE.Mesh(new THREE.PlaneGeometry(100,64), new THREE.MeshStandardMaterial({color}));
+  f.rotation.x=-Math.PI/2; f.position.set(48,0,30); levelGroup.add(f);
+}
+function pumpkin(x,z,s){
+  const g = new THREE.Group();
+  const b = new THREE.Mesh(new THREE.SphereGeometry(0.6*s,10,8), new THREE.MeshStandardMaterial({color:0xff7b00, emissive:0x903500, emissiveIntensity:.6}));
+  b.position.y=0.6*s; b.scale.y=0.85; g.add(b);
+  [-0.15,0.15].forEach(px=>{ const e=new THREE.Mesh(new THREE.PlaneGeometry(0.14,0.18), new THREE.MeshBasicMaterial({color:0xffff00,side:THREE.DoubleSide})); e.position.set(px,0.7*s,0.55*s); g.add(e); });
+  const mo=new THREE.Mesh(new THREE.PlaneGeometry(0.3,0.12), new THREE.MeshBasicMaterial({color:0xffff00,side:THREE.DoubleSide})); mo.position.set(0,0.4*s,0.56*s); g.add(mo);
+  const l = new THREE.PointLight(0xff8c00, 0.8, 8); l.position.y=1; g.add(l);
+  g.position.set(x,0,z); levelGroup.add(g);
+}
+function lampPost(x,z){
+  const p = new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.16,5,8), new THREE.MeshStandardMaterial({color:0x222222}));
+  p.position.set(x,2.5,z); levelGroup.add(p);
+  const orb = new THREE.Mesh(new THREE.SphereGeometry(0.4,10,8), new THREE.MeshBasicMaterial({color:0xffb300})); orb.position.set(x,5.2,z); levelGroup.add(orb);
+  const l = new THREE.PointLight(0xff9d00, 0.9, 18); l.position.set(x,5,z); levelGroup.add(l);
+}
+function hauntedHouse(x,z,w,d,roofColor){
+  addSolid(x,z-d/2,w,0.6,4,0x4a2a7a); // frente com abertura? simplificada
+  addSolid(x-w/2,z,0.6,d,4,0x4a2a7a);
+  addSolid(x+w/2,z,0.6,d,4,0x4a2a7a);
+  addSolid(x,z+d/2,w,0.6,4,0x4a2a7a);
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w,d)*0.75,2.6,4), new THREE.MeshStandardMaterial({color:roofColor}));
+  roof.position.set(x,5.2,z); roof.rotation.y=Math.PI/4; levelGroup.add(roof);
+  // janelas amarelas
+  for(let i=-1;i<=1;i++){ const win=new THREE.Mesh(new THREE.PlaneGeometry(0.9,1.1), new THREE.MeshBasicMaterial({color:0xffe45e})); win.position.set(x+i*2,2.4,z-d/2-0.32); win.rotation.y=Math.PI; levelGroup.add(win); }
+  // porta doce
+  const door=new THREE.Mesh(new THREE.PlaneGeometry(1.6,2.6), new THREE.MeshBasicMaterial({color:0x22c55e})); door.position.set(x,1.3,z-d/2-0.35); door.rotation.y=Math.PI; levelGroup.add(door);
+}
+function bigMoon(){ const m=new THREE.Mesh(new THREE.SphereGeometry(6,16,16), new THREE.MeshBasicMaterial({color:0xfff3b0,fog:false})); m.position.set(80,32,-20); scene.add(m); decos.push(m); }
+
+function buildStreet(){
+  clearLevel(); meta = 10; document.getElementById('hMeta').textContent=meta;
+  scene.background=new THREE.Color(0x1a0533); scene.fog=new THREE.Fog(0x1a0533,12,75);
+  ground(0x1e1430);
+  // estrada
+  const road=new THREE.Mesh(new THREE.PlaneGeometry(100,10), new THREE.MeshStandardMaterial({color:0x2b2b3d})); road.rotation.x=-Math.PI/2; road.position.set(48,0.02,30); levelGroup.add(road);
+  for(let i=0;i<14;i++){ const tr=new THREE.Mesh(new THREE.PlaneGeometry(2,0.4), new THREE.MeshBasicMaterial({color:0xffe45e})); tr.rotation.x=-Math.PI/2; tr.position.set(6+i*7,0.03,30); levelGroup.add(tr); }
+  // casas assombradas na rua
+  hauntedHouse(20,12,10,8,0x7c3aed); hauntedHouse(48,12,12,9,0xff2e88); hauntedHouse(76,12,10,8,0x22d3ee);
+  hauntedHouse(20,50,10,8,0x65a30d); hauntedHouse(76,50,10,8,0xff6b00);
+  // cercas
+  for(let x=8;x<92;x+=4){ addSolid(x,22,2.4,0.3,1,0x3b2a5e); addSolid(x,38,2.4,0.3,1,0x3b2a5e); }
+  [[14,30],[34,30],[62,30],[84,30]].forEach(p=>lampPost(p[0],p[1]));
+  [[10,26],[28,34],[52,26],[70,34],[88,26],[40,44]].forEach((p,i)=>pumpkin(p[0],p[1],0.9+(i%3)*0.3));
+  // fantasmas flutuantes decor
+  for(let i=0;i<6;i++){ const gh=new THREE.Mesh(new THREE.SphereGeometry(0.5,8,8), new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.85})); gh.position.set(10+i*14,3+Math.sin(i)*0.5,44); levelGroup.add(gh); decos.push(gh); }
+  bigMoon();
+  // doces
+  const spots=[[8,30],[18,30],[30,28],[42,32],[55,28],[68,32],[80,30],[90,28],[24,42],[48,44],[64,44],[16,16],[48,17],[76,17]];
+  spawnCandies(spots);
+  // velhos rabugentos
+  spawnFoes([[30,30,3.0],[58,30,3.4],[80,36,3.0]], 1);
+  // portal abóbora gigante = fim da fase
+  const pg = new THREE.Group();
+  const big = new THREE.Mesh(new THREE.SphereGeometry(2,14,12), new THREE.MeshStandardMaterial({color:0xff7b00,emissive:0x903500,emissiveIntensity:.8}));
+  big.position.y=1.8; big.scale.y=0.9; pg.add(big);
+  const li = new THREE.PointLight(0x22c55e,1.4,14); li.position.y=2; pg.add(li);
+  pg.position.set(90,0,52); levelGroup.add(pg); portal=pg;
+  const t = new THREE.Mesh(new THREE.BoxGeometry(1,0.4,0.1), new THREE.MeshBasicMaterial({color:0x22c55e})); t.position.set(90,4.4,52); levelGroup.add(t); decos.push(t);
+}
+function buildMansion(){
+  clearLevel(); meta = 15; document.getElementById('hMeta').textContent=meta;
+  scene.background=new THREE.Color(0x0a0218); scene.fog=new THREE.Fog(0x0a0218,8,55);
+  ground(0x241031);
+  // labirinto mansão (paredes roxas + teias)
+  const W=[[0,0,96,2],[0,58,96,2],[0,0,2,60],[94,0,2,60],
+   [12,8,24,2],[44,8,2,16],[54,8,24,2],[12,20,2,16],[12,34,24,2],[44,24,20,2],
+   [20,43,30,2],[58,20,2,24],[66,34,20,2],[66,12,2,14],[12,43,2,11],[58,43,28,2],[76,43,2,15]];
+  W.forEach(w=>addSolid(w[0]+w[2]/2, w[1]+w[3]/2, w[2], w[3], 4, 0x4a2a7a));
+  // velas
+  for(let i=0;i<10;i++){ const c=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,0.6,8), new THREE.MeshStandardMaterial({color:0xfff7d6})); c.position.set(8+i*8,0.3,6+(i%3)*8); levelGroup.add(c);
+    const f=new THREE.PointLight(0xff9d00,0.7,10); f.position.set(8+i*8,1.2,6+(i%3)*8); levelGroup.add(f); }
+  [[10,14],[30,12],[66,16],[84,18],[24,30],[52,30],[74,40],[30,50],[60,50],[86,50],[14,52],[44,40],[52,16],[70,28],[38,48]].forEach(p=>pumpkin(p[0],p[1],0.8));
+  const spots=[[8,10],[24,14],[40,14],[60,12],[80,14],[20,28],[36,30],[56,28],[72,30],[86,32],[16,48],[32,52],[52,52],[68,52],[86,52],[48,38]];
+  spawnCandies(spots.slice(0,16));
+  spawnFoes([[30,28,3.8],[60,30,4.2],[76,48,4.5],[20,48,4.0]], 2);
+  // porta verde saída
+  const door=new THREE.Mesh(new THREE.BoxGeometry(3.4,3.4,0.5), new THREE.MeshStandardMaterial({color:0x22c55e,emissive:0x064e2b}));
+  door.position.set(90,1.7,54); levelGroup.add(door); exitDoor=door;
+  const dl=new THREE.PointLight(0x22c55e,1.5,12); dl.position.set(90,2.5,53); levelGroup.add(dl);
+}
+function spawnCandies(spots){
+  const geo=new THREE.TorusGeometry(0.3,0.14,10,18);
+  spots.forEach(s=>{
+    const col=[0xec4899,0xff8c00,0x22d3ee,0xffe45e][Math.floor(Math.random()*4)];
+    const m=new THREE.Mesh(geo, new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:.35}));
+    m.position.set(s[0],1.1,s[1]); levelGroup.add(m);
+    candies.push({m,taken:false,timer:0});
+  });
+}
+function spawnFoes(list, lvl){
+  list.forEach(s=>{
+    const m=makeOldMan(); levelGroup.add(m);
+    foes.push({m,x:s[0],z:s[1],speed:s[2],pi:0,pat:[[s[0]-6,s[1]-4],[s[0]+6,s[1]-4],[s[0]+6,s[1]+4],[s[0]-6,s[1]+4]],bubble:0,bubbleTxt:''});
+  });
+}
+
+// ==================== PLAYER MESH ====================
+let girlMesh = makeGirl(CHARS[0]); girlMesh.visible=false;
+function refreshGirl(){ scene.remove(girlMesh); girlMesh = makeGirl(charDef()); girlMesh.visible = (state==='play'); }
+
+// ==================== UI TELAS ====================
+const ov = document.getElementById('overlay'), ovCard=document.getElementById('ovCard');
+function charCardsHTML(){
+  return CHARS.map(c=>{
+    const unlocked = save.unlocked.includes(c.id);
+    const sel = selChar===c.id ? 'sel':'';
+    return `<div class="char ${sel} ${unlocked?'':'locked'}" data-id="${c.id}">
+      <div class="doll" style="background:${c.hair}"><div style="position:absolute;left:12px;right:12px;top:26px;bottom:8px;background:#ffe9d2;border-radius:10px"></div>
+      <div style="position:absolute;left:20px;top:40px;width:12px;height:14px;background:${c.eye};border-radius:50%"></div>
+      <div style="position:absolute;right:20px;top:40px;width:12px;height:14px;background:${c.eye};border-radius:50%"></div>
+      <div style="position:absolute;left:50%;top:4px;transform:translateX(-50%);font-size:26px">${c.id==='harumi'?'💀':c.id==='yuki'?'🧙':c.id==='ren'?'🧛':'🎃'}</div></div>
+      <b>${unlocked?c.nome:'???'}</b><small>${unlocked?c.desc:'🔒 '+c.need}</small></div>`;
+  }).join('');
+}
+function shopHTML(){
+  return SHOP.map(s=>{
+    const owned = hasItem(s.id);
+    return `<div class="item">${s.nome}<br>${s.desc}<br><b>🍬 ${s.price}</b><br><button class="ghost" data-buy="${s.id}" ${owned||save.bank<s.price?'disabled':''}>${owned?'ADQUIRIDO':'COMPRAR'}</button></div>`;
+  }).join('');
+}
+function showMenu(){
+  state='menu'; girlMesh.visible=false;
+  drawFace();
+  ov.classList.remove('hidden');
+  ovCard.innerHTML=`
+   <div class="y2k-title">👻 HARUMI<br>CAÇA-DOCES 2000 🍬</div>
+   <div class="sub">estética anos 2000 ✦ rua halloween 🎃 casas assombradas 🏚️ velhos rabugentos 👴💢<br>
+   Você é <b>Harumi</b>: cabelo azul-marinho, olhos rosados, fantasia de caveira 💀</div>
+   <div class="marquee" style="margin:10px 0;border-radius:8px"><span>✦ WASD mover • mouse olhar • E interagir • SHIFT correr ✦ 🍬 balinhas = moeda ✦ vença fases e desbloqueie personagens ✦</span></div>
+   <h3 style="color:#ffe45e">1) Escolha a personagem</h3>
+   <div class="chars">${charCardsHTML()}</div>
+   <h3 style="color:#ffe45e">2) Loja da balinha 🍬 (banco: ${save.bank})</h3>
+   <div class="shop">${shopHTML()}</div>
+   <div style="margin-top:10px"><button data-fase="1">▶ FASE 1: RUA HALLOWEEN 🎃</button>
+   <button class="ghost" data-fase="2">🏚️ FASE 2: MANSÃO ${save.unlocked.includes('yuki')?'':'🔒'}</button></div>
+   <p class="sub">Meta: colete <b>10 🍬</b> na rua e entre na <b>abóbora verde</b> / <b>15 🍬</b> na mansão e saia pela porta verde.<br>
+   <kbd>WASD</kbd> mover • <kbd>E</kbd> girar abóboras • <kbd>Shift</kbd> correr • doces recarregam energia ⚡</p>`;
+  bindMenu();
+}
+function bindMenu(){
+  ovCard.querySelectorAll('.char').forEach(el=>el.onclick=()=>{
+    const id=el.dataset.id;
+    if(!save.unlocked.includes(id)){ showPrompt('🔒 Bloqueada! Vença fases para desbloquear.'); return; }
+    selChar=id; drawFace(); refreshGirl(); showMenu();
+  });
+  ovCard.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.buy; const s=SHOP.find(x=>x.id===id);
+    if(save.bank>=s.price && !hasItem(id)){ save.bank-=s.price; save.items.push(id); persist(); beep(880,.15); showMenu(); }
+  });
+  ovCard.querySelectorAll('[data-fase]').forEach(b=>b.onclick=()=>{
+    const f=+b.dataset.fase;
+    if(f===2 && !save.unlocked.includes('yuki')){ showPrompt('🔒 Vença a Fase 1 primeiro!'); return; }
+    startLevel(f);
+  });
+}
+function showWin(nextFase){
+  state='win'; document.exitPointerLock&&document.exitPointerLock(); girlMesh.visible=false;
+  const newly=[];
+  if(level===1 && !save.unlocked.includes('yuki')){ save.unlocked.push('yuki'); newly.push('🧙 Yuki Bruxa (+15% velocidade)!'); }
+  if(level===2 && !save.unlocked.includes('ren')){ save.unlocked.push('ren'); newly.push('🧛 Ren Vampiro (+1 vida)!'); }
+  if(save.bank>=40 && !save.unlocked.includes('sora')){ save.unlocked.push('sora'); newly.push('🎃 Sora Abóbora (ímã de doces)!'); }
+  persist(); drawFace();
+  ov.classList.remove('hidden');
+  ovCard.innerHTML=`<div class="y2k-title">🎉 FASE ${level} VENCIDA!</div>
+   <p>Harumi coletou <b>${P.got} 🍬</b>! Banco total: <b>${save.bank} 🍬</b></p>
+   ${newly.length?`<p class="blink" style="color:#ffe45e;font-weight:900">✦ NOVO DESBLOQUEIO ✦<br>${newly.join('<br>')}</p>`:'<p class="sub">Junte 40 🍬 no banco para liberar a Sora Abóbora 🎃</p>'}
+   <p class="sub">Características: ${save.items.length?save.items.join(', '):'nenhuma ainda — compre na loja com balinhas!'}</p>
+   <button data-go="menu">★ MENU / LOJA</button>
+   ${nextFase?'<button class="ghost" data-go="next">PRÓXIMA FASE ➜</button>':''}
+   <button class="ghost" data-go="replay">↻ JOGAR DE NOVO</button>`;
+  ovCard.querySelector('[data-go="menu"]').onclick=showMenu;
+  const nx=ovCard.querySelector('[data-go="next"]'); if(nx) nx.onclick=()=>startLevel(level+1>2?2:level+1);
+  ovCard.querySelector('[data-go="replay"]').onclick=()=>startLevel(level);
+  beep(880,.4); setTimeout(()=>beep(1100,.4),250);
+}
+function showDead(){
+  state='dead'; document.exitPointerLock&&document.exitPointerLock(); girlMesh.visible=false;
+  ov.classList.remove('hidden');
+  ovCard.innerHTML=`<div class="y2k-title">👴💢 PEGO!</div>
+  <p>Os velhos mal-educados tomaram seus doces!<br>Banco salvo: <b>${save.bank} 🍬</b></p>
+  <button data-go="menu">★ MENU</button> <button class="ghost" data-go="replay">↻ TENTAR DE NOVO</button>`;
+  ovCard.querySelector('[data-go="menu"]').onclick=showMenu;
+  ovCard.querySelector('[data-go="replay"]').onclick=()=>startLevel(level);
+  beep(140,.5);
+}
+
+// ==================== INPUT ====================
+addEventListener('keydown',e=>{ keys[e.key.toLowerCase()]=true; if(e.key.toLowerCase()==='e') interact(); });
+addEventListener('keyup',e=>{ keys[e.key.toLowerCase()]=false; });
+document.getElementById('tSprint').ontouchstart=e=>{e.preventDefault();sprintTouch=true};
+document.getElementById('tSprint').ontouchend=()=>sprintTouch=false;
+document.getElementById('tUse').ontouchstart=e=>{e.preventDefault();interact()};
+let locked=false;
+canvas.onclick=()=>{ if(state==='play') canvas.requestPointerLock&&canvas.requestPointerLock(); };
+document.addEventListener('pointerlockchange', ()=>{ locked=document.pointerLockElement===canvas; });
+document.addEventListener('mousemove', e=>{
+  if(!locked||state!=='play') return;
+  P.yaw-=e.movementX*0.0026; P.pitch-=e.movementY*0.0022;
+  P.pitch=Math.max(-1.1,Math.min(0.6,P.pitch));
+});
+let lastT=null;
+canvas.addEventListener('touchmove', e=>{ const t=e.touches[0]; if(lastT&&state==='play'){P.yaw-=(t.clientX-lastT.x)*0.006;P.pitch-=(t.clientY-lastT.y)*0.005;} lastT={x:t.clientX,y:t.clientY}; },{passive:true});
+canvas.addEventListener('touchend', ()=>lastT=null);
+
+function beep(f,d){ try{ const a=beep.ctx||(beep.ctx=new (window.AudioContext||window.webkitAudioContext)()); const o=a.createOscillator(),g=a.createGain(); o.type='square'; o.frequency.value=f; o.connect(g); g.connect(a.destination); g.gain.setValueAtTime(0.08,a.currentTime); o.start(); o.stop(a.currentTime+d);}catch(e){} }
+let promptT=null;
+function showPrompt(t){ const el=document.getElementById('prompt'); el.textContent=t; el.style.display='block'; clearTimeout(promptT); promptT=setTimeout(()=>el.style.display='none',2200); }
+function showTalk(t,ms){ const el=document.getElementById('talk'); el.textContent=t; el.style.display='block'; clearTimeout(showTalk.t); showTalk.t=setTimeout(()=>el.style.display='none',ms||1800); }
+function collide(nx,nz){
   const r=0.6;
-  if(nx<1.5||nx>94.5||nz<1.5||nz>58.5) return true;
+  if(nx<2||nx>94||nz<2||nz>58) return true;
   for(const s of solids){ if(nx+r>s.x0&&nx-r<s.x1&&nz+r>s.z0&&nz-r<s.z1) return true; }
   return false;
 }
-function interact(){
-  if(state!=='play') return;
-  for(const t of terms){
-    if(!t.hacked && Math.hypot(P.x-t.g.position.x,P.z-t.g.position.z)<3){
-      if(P.cards>0){ P.cards--; t.hacked=true; t.g.children[0].material=new THREE.MeshStandardMaterial({color:0x22c55e}); t.scr.material=new THREE.MeshBasicMaterial({color:0x4ade80}); beep(660,0.15);
-        if(terms.every(x=>x.hacked)){ doorOpen=true; door.material=new THREE.MeshStandardMaterial({color:0x22c55e,emissive:0x064e2b}); doorLight.intensity=2; showPrompt('Saída aberta! Corra!'); }
-      } else { showPrompt('Precisa de 1 cartão!'); beep(180,0.2); }
-      return;
-    }
-  }
-}
-let promptT=null;
-function showPrompt(t){ const el=document.getElementById('prompt'); el.textContent=t; el.style.display='block'; clearTimeout(promptT); promptT=setTimeout(()=>el.style.display='none',2200); }
+function interact(){ if(state!=='play')return; showPrompt('🍬 Procure doces brilhantes! Meta: '+P.got+'/'+meta); beep(500,.08); }
 
-function restart(){
-  P.x=6;P.z=6;P.yaw=Math.PI*0.75;P.pitch=0;P.stamina=100;P.lives=3;P.cards=0;P.candy=0;P.inv=0;
-  cards.forEach(c=>{c.taken=false;c.m.visible=true}); terms.forEach(t=>{t.hacked=false;t.g.children[0].material=new THREE.MeshStandardMaterial({color:0x0ea5e9});t.scr.material=new THREE.MeshBasicMaterial({color:0x7dd3fc})});
-  candies.forEach(c=>{c.taken=false;c.timer=0;c.m.visible=true});
-  scis[0].x=70;scis[0].z=45;scis[1].x=50;scis[1].z=30;scis[2].x=25;scis[2].z=25;
-  doorOpen=false; door.material=doorMat; doorLight.intensity=0;
-  startT=Date.now(); state='play'; document.getElementById('overlay').classList.add('hidden');
-}
-function endGame(win){
-  state=win?'win':'dead'; document.exitPointerLock&&document.exitPointerLock();
-  const ov=document.getElementById('overlay'); ov.classList.remove('hidden');
-  document.getElementById('ovTitle').textContent = win?('🎉 Escapou em '+elapsed+'s!'):'🧬 Capturada!';
-  document.getElementById('ovText').innerHTML = win?'Alice hackeou tudo e fugiu! Clique para jogar de novo.':'Os cientistas capturaram a Alice. Clique para tentar de novo.';
-  document.getElementById('btn').textContent='↻ Jogar novamente';
-  beep(win?880:140,0.4);
+// ==================== START ====================
+function startLevel(f){
+  level=f; refreshGirl();
+  const def=charDef();
+  P.x=6;P.z=30;P.yaw=-Math.PI/2;P.pitch=-0.15;P.stamina=100;P.inv=0;P.got=0;
+  P.lives = def.lives + (hasItem('capa')?1:0);
+  if(f===1) buildStreet(); else buildMansion();
+  document.getElementById('hFase').textContent=f;
+  document.getElementById('hBank').textContent=save.bank;
+  state='play'; ov.classList.add('hidden'); girlMesh.visible=true;
+  showTalk(f===1?'🎃 Rua Halloween 2000! Ache 10 🍬 e vá à abóbora gigante!':'🏚️ Mansão Assombrada! Ache 15 🍬 e fuja pela porta verde!',2600);
+  if(hasItem('lanterna')) playerLight.intensity=1.6; else playerLight.intensity=0.9;
 }
 
-// ---------- loop ----------
-const hC=document.getElementById('hCards'),hT=document.getElementById('hTerms'),hCa=document.getElementById('hCandy'),hL=document.getElementById('hLives'),stB=document.getElementById('stBar'),hTi=document.getElementById('hTime'),dmg=document.getElementById('dmg');
+// ==================== LOOP ====================
+const hC=document.getElementById('hCandy'),hB=document.getElementById('hBank'),hL=document.getElementById('hLives'),stB=document.getElementById('stBar'),dmg=document.getElementById('dmg');
 const clock=new THREE.Clock();
 function tick(){
   requestAnimationFrame(tick);
   const dt=Math.min(clock.getDelta(),0.05), t=clock.elapsedTime;
+  decos.forEach((d,i)=>{ d.position.y += Math.sin(t*2+i)*0.002; d.rotation&&(d.rotation.y+=dt*0.4); });
+  if(portal){ portal.rotation.y+=dt; portal.position.y=Math.sin(t*2)*0.15; }
   if(state==='play'){
-    elapsed=Math.floor((Date.now()-startT)/1000);
     let f=0,s=0;
     if(keys['w']||keys['arrowup'])f+=1; if(keys['s']||keys['arrowdown'])f-=1;
     if(keys['d']||keys['arrowright'])s+=1; if(keys['a']||keys['arrowleft'])s-=1;
     const moving=(f||s);
     const wantSprint=(keys['shift']||sprintTouch)&&moving&&P.stamina>1;
-    const sp=wantSprint?7:(P.stamina<=0?2.6:4.4);
-    if(wantSprint)P.stamina=Math.max(0,P.stamina-25*dt); else P.stamina=Math.min(100,P.stamina+(moving?5:10)*dt);
+    let sp=4.6*charDef().speed*(hasItem('patins')?1.2:1);
+    if(wantSprint) sp*=1.55; if(P.stamina<=0) sp*=0.6;
+    if(wantSprint)P.stamina=Math.max(0,P.stamina-22*dt); else P.stamina=Math.min(100,P.stamina+(moving?6:12)*dt);
     const sin=Math.sin(P.yaw),cos=Math.cos(P.yaw);
     let mx=(-sin*f+cos*s), mz=(-cos*f-sin*s);
     if(moving){const l=Math.hypot(mx,mz);mx/=l;mz/=l;}
     const nx=P.x+mx*sp*dt, nz=P.z+mz*sp*dt;
-    if(!collide3(nx,P.z))P.x=nx; if(!collide3(P.x,nz))P.z=nz;
-    if(P.inv>0){P.inv-=dt;dmg.style.display='none';}
-    camera.position.set(P.x,P.y+Math.sin(t*10)*0.03*(wantSprint?2:0),P.z);
-    camera.rotation.set(0,0,0); camera.rotation.order='YXZ'; camera.rotation.y=P.yaw; camera.rotation.x=P.pitch;
-    // anima coletáveis
-    cards.forEach(c=>{ if(!c.taken){c.m.rotation.y+=dt*2; if(Math.hypot(P.x-c.m.position.x,P.z-c.m.position.z)<1.2){c.taken=true;c.m.visible=false;P.cards++;beep(520,0.12);showPrompt('Cartão coletado! ('+P.cards+'/3)');}}});
-    candies.forEach(c=>{ if(c.taken){c.timer-=dt; if(c.timer<=0){c.taken=false;c.m.visible=true;}} else {c.m.rotation.y+=dt*2.5; c.m.position.y=1.1+Math.sin(t*3+c.m.position.x)*0.12; if(Math.hypot(P.x-c.m.position.x,P.z-c.m.position.z)<1.2){c.taken=true;c.timer=20;c.m.visible=false;P.candy++;P.stamina=Math.min(100,P.stamina+35);beep(740,0.12);}}});
-    terms.forEach(o=>{o.g.rotation.y=Math.sin(t+o.g.position.x)*0.08;});
-    // cientistas
-    for(const sc of scis){
+    if(!collide(nx,P.z))P.x=nx; if(!collide(P.x,nz))P.z=nz;
+    if(P.inv>0){P.inv-=dt; if(P.inv<=0) dmg.style.display='none';}
+    // 3ª pessoa: câmera atrás da Harumi
+    const cd=5.2, ch=2.6;
+    const cx=P.x+sin*cd*Math.cos(P.pitch), cz=P.z+cos*cd*Math.cos(P.pitch), cy=ch-Math.sin(P.pitch)*cd;
+    camera.position.set(cx,Math.max(1.2,cy),cz);
+    camera.lookAt(P.x,1.7,P.z);
+    girlMesh.position.set(P.x, moving?Math.abs(Math.sin(t*10))*0.08:Math.sin(t*2)*0.03, P.z);
+    girlMesh.rotation.y=Math.atan2(mx,mz)+(moving?0:P.yaw+Math.PI);
+    if(!moving) girlMesh.rotation.y=P.yaw+Math.PI;
+    playerLight.position.set(P.x,2.5,P.z);
+    // doces
+    const magnet = selChar==='sora'?3:1.3;
+    candies.forEach(c=>{
+      if(c.taken){ c.timer-=dt; if(c.timer<=0){c.taken=false;c.m.visible=true;} }
+      else{ c.m.rotation.y+=dt*2.5; c.m.position.y=1.1+Math.sin(t*3+c.m.position.x)*0.12;
+        if(Math.hypot(P.x-c.m.position.x,P.z-c.m.position.z)<magnet){
+          c.taken=true;c.timer=25;c.m.visible=false;P.got++;save.bank++;persist();
+          P.stamina=Math.min(100,P.stamina+30);beep(740+Math.random()*200,.1);
+          if(P.got===meta) showTalk('✦ META BATIDA! Corra para a saída verde! ✦',2500);
+        }}
+    });
+    // velhos rabugentos
+    for(const sc of foes){
       const d=Math.hypot(P.x-sc.x,P.z-sc.z);
       let vx,vz,vl;
-      if(d<16){ vx=P.x-sc.x; vz=P.z-sc.z; vl=Math.hypot(vx,vz)||1; vx/=vl; vz/=vl;
+      if(d<15){ vx=P.x-sc.x; vz=P.z-sc.z; vl=Math.hypot(vx,vz)||1; vx/=vl; vz/=vl;
         const nnx=sc.x+vx*sc.speed*dt, nnz=sc.z+vz*sc.speed*dt;
-        if(!collide3(nnx,sc.z))sc.x=nnx; if(!collide3(sc.x,nnz))sc.z=nnz;
+        if(!collide(nnx,sc.z))sc.x=nnx; if(!collide(sc.x,nnz))sc.z=nnz;
+        if(sc.bubble<=0 && d<8){ sc.bubble=2.5; const txt=RUDE[Math.floor(Math.random()*RUDE.length)]; setBubble(sc.m,txt); showTalk('👴 "'+txt+'"',1800); beep(150,.25); }
       } else { const wp=sc.pat[sc.pi]; vx=wp[0]-sc.x; vz=wp[1]-sc.z; vl=Math.hypot(vx,vz);
-        if(vl<0.6){sc.pi=(sc.pi+1)%sc.pat.length;} else {vx/=vl;vz/=vl; const nnx=sc.x+vx*sc.speed*0.5*dt,nnz=sc.z+vz*sc.speed*0.5*dt; if(!collide3(nnx,sc.z))sc.x=nnx; if(!collide3(sc.x,nnz))sc.z=nnz;} }
-      sc.m.position.set(sc.x,Math.abs(Math.sin(t*8+sc.x))*0.06,sc.z);
+        if(vl<0.8){sc.pi=(sc.pi+1)%sc.pat.length;} else {vx/=vl;vz/=vl; const nnx=sc.x+vx*sc.speed*0.5*dt,nnz=sc.z+vz*sc.speed*0.5*dt; if(!collide(nnx,sc.z))sc.x=nnx; if(!collide(sc.x,nnz))sc.z=nnz;} }
+      sc.bubble-=dt; sc.m.userData.bal.visible = sc.bubble>0;
+      sc.m.position.set(sc.x,Math.abs(Math.sin(t*7+sc.x))*0.05,sc.z);
       sc.m.rotation.y=Math.atan2(P.x-sc.x,P.z-sc.z);
-      if(d<1.3&&P.inv<=0){ P.lives--; P.inv=2; P.x=6;P.z=6;P.stamina=Math.max(P.stamina,50); dmg.style.display='block'; beep(120,0.35); if(P.lives<=0){endGame(false);} else showPrompt('Capturada! Vidas: '+P.lives); }
+      if(d<1.4&&P.inv<=0){
+        P.lives--; P.inv=2; P.stamina=Math.max(P.stamina,50);
+        P.got=Math.max(0,P.got-2); save.bank=Math.max(0,save.bank-2); persist();
+        dmg.style.display='block'; beep(120,.35);
+        showTalk('👴💢 "GURI(A) MAL-EDUCADO É VOCÊ! PERDEU DOCES!"',2000);
+        if(P.lives<=0){ showDead(); } else showPrompt('Ai! Vidas: '+P.lives);
+      }
     }
-    if(doorOpen&&Math.hypot(P.x-90,P.z-54)<2.6){endGame(true);}
-    hC.textContent=P.cards+'/3'; hT.textContent=terms.filter(x=>x.hacked).length+'/3'; hCa.textContent=P.candy; hL.textContent=P.lives; stB.style.width=P.stamina+'%'; hTi.textContent=elapsed+'s';
-    // dica terminal
-    let near=null; for(const o of terms){if(!o.hacked&&Math.hypot(P.x-o.g.position.x,P.z-o.g.position.z)<3)near=o;}
-    const pr=document.getElementById('prompt');
-    if(near&&pr.style.display!=='block'){pr.textContent=P.cards>0?'Pressione E para hackear':'Pegue um cartão!';pr.style.display='block';clearTimeout(promptT);promptT=setTimeout(()=>pr.style.display='none',1500);}
+    // saída
+    if(level===1 && portal && P.got>=meta && Math.hypot(P.x-portal.position.x,P.z-portal.position.z)<3){ showWin(true); }
+    if(level===2 && exitDoor && P.got>=meta && Math.hypot(P.x-90,P.z-54)<3){ showWin(false); }
+    hC.textContent=P.got; hB.textContent=save.bank; hL.textContent=P.lives; stB.style.width=P.stamina+'%';
+    // dica saída
+    if(P.got<meta && Math.floor(t)%12===0 && Math.floor(t)!==tick._l){ tick._l=Math.floor(t); }
   }
   renderer.render(scene,camera);
 }
-camera.position.set(P.x,P.y,P.z);
-tick();
+showMenu(); drawFace(); tick();
 </script>
 </body>
 </html>
