@@ -6,36 +6,35 @@
 <title>Harumi 2D — Caça-Doces na Casa Assombrada 🎃</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap');
-  :root{ --azul:#38bdf8; --azul2:#1e3aff; --rosa:#ff4fc3; --rosa2:#ec4899; }
-  *{box-sizing:border-box}
-  body{margin:0;background:#0b1030;color:#fff;font-family:'Fredoka',Verdana,sans-serif;overflow:hidden}
-  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 20%,#2b1a6e,#0b1030 70%)}
-  #game{border:4px solid #fff;border-radius:18px;box-shadow:0 0 25px var(--rosa),0 0 45px var(--azul);background:#000;max-width:96vw;max-height:86vh}
-  #hud{position:fixed;top:0;left:0;right:0;display:flex;gap:8px;align-items:center;padding:8px 10px;flex-wrap:wrap;z-index:5;pointer-events:none}
-  .pill{background:linear-gradient(180deg,var(--azul2),var(--rosa));border:2px solid #fff;border-radius:999px;padding:6px 14px;font-weight:700;text-shadow:1px 1px 0 #000;box-shadow:0 0 12px var(--azul)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0b1030;color:#fff;font-family:'Fredoka',Verdana,sans-serif;overflow:hidden;height:100vh}
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 15%,#2b1a6e,#0b1030 70%);padding:52px 8px 8px}
+  #game{border:4px solid #fff;border-radius:18px;box-shadow:0 0 25px #ff4fc3,0 0 45px #38bdf8;background:#000;width:min(96vw,960px);height:auto;aspect-ratio:960/600}
+  #hud{position:fixed;top:0;left:0;right:0;display:flex;gap:8px;align-items:center;padding:8px 10px;flex-wrap:wrap;z-index:5;background:linear-gradient(180deg,#000c,transparent)}
+  .pill{background:linear-gradient(180deg,#1e3aff,#ff4fc3);border:2px solid #fff;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;text-shadow:1px 1px 0 #000;white-space:nowrap}
   .pill b{background:#0008;border-radius:8px;padding:0 8px}
-  #hud button{pointer-events:auto;background:#fff;color:#d81b96;border:2px solid #fff;border-radius:999px;padding:6px 14px;font-weight:900;cursor:pointer}
-  #prompt{position:fixed;left:50%;top:72%;transform:translateX(-50%);background:linear-gradient(90deg,var(--azul2),var(--rosa));border:2px solid #fff;padding:8px 18px;border-radius:14px;display:none;font-weight:700;z-index:6}
-  #talk{position:fixed;left:50%;top:16%;transform:translateX(-50%);background:#fff;color:#1e2aff;border:3px solid var(--rosa);border-radius:14px;padding:8px 16px;display:none;z-index:6;font-weight:700;max-width:84vw;text-align:center}
+  .hbtn{background:#fff;color:#c21485;border:2px solid #fff;border-radius:999px;padding:6px 14px;font-weight:900;cursor:pointer;font-family:inherit;font-size:14px}
+  .hbtn:active{transform:scale(.95)}
+  #prompt{position:fixed;left:50%;bottom:12%;transform:translateX(-50%);background:linear-gradient(90deg,#1e3aff,#ff4fc3);border:2px solid #fff;padding:8px 18px;border-radius:14px;display:none;font-weight:700;z-index:6;font-size:15px}
+  #talk{position:fixed;left:50%;top:64px;transform:translateX(-50%);background:#fff;color:#1e2aff;border:3px solid #ff4fc3;border-radius:14px;padding:8px 16px;display:none;z-index:6;font-weight:700;max-width:86vw;text-align:center;font-size:14px}
   #flash{position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,60,180,.6));display:none;pointer-events:none;z-index:6}
-  #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(8,6,34,.9);z-index:10;padding:14px;overflow:auto}
+  #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(8,6,34,.92);z-index:10;padding:14px;overflow:auto}
   #overlay.hidden{display:none}
-  .card{max-width:740px;width:100%;background:linear-gradient(160deg,#1e3aff 0%,#7c3aed 40%,#ff4fc3 100%);border:4px solid #fff;border-radius:22px;padding:22px;text-align:center;box-shadow:0 0 30px var(--rosa)}
-  .title{font-size:36px;margin:4px 0;text-shadow:2px 2px 0 #1e3aff,-2px 2px 0 var(--rosa);letter-spacing:1px}
-  .sub{font-size:14px;color:#ffe4f5}
-  button.big{background:linear-gradient(180deg,#fff,#ffd1f2);border:3px solid #fff;color:#a3107a;font-weight:900;padding:12px 22px;border-radius:14px;cursor:pointer;font-size:16px;margin:6px;box-shadow:0 4px 0 #a3107a}
-  button.blue{background:linear-gradient(180deg,#bae6fd,#38bdf8);color:#062a4e;box-shadow:0 4px 0 #062a4e}
-  button.ghostb{background:transparent;border:2px solid #fff;color:#fff;padding:10px 16px;border-radius:12px;cursor:pointer;font-weight:700}
-  .grid{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0}
-  .opt{background:#0009;border:2px solid #fff;border-radius:12px;padding:10px;min-width:130px;cursor:pointer}
+  .card{max-width:720px;width:100%;background:linear-gradient(160deg,#1e3aff 0%,#7c3aed 45%,#ff4fc3 100%);border:4px solid #fff;border-radius:22px;padding:22px;text-align:center;box-shadow:0 0 30px #ff4fc3}
+  .title{font-size:34px;line-height:1.15;text-shadow:2px 2px 0 #1e3aff;margin-bottom:6px}
+  .sub{font-size:14px;color:#ffe4f5;margin:8px 0}
+  button.big{background:linear-gradient(180deg,#fff,#ffd1f2);border:3px solid #fff;color:#a3107a;font-weight:900;padding:12px 20px;border-radius:14px;cursor:pointer;font-size:16px;margin:6px;font-family:inherit}
+  button.blue{background:linear-gradient(180deg,#bae6fd,#38bdf8);color:#062a4e}
+  button.ghostb{background:transparent;border:2px solid #fff;color:#fff;padding:10px 16px;border-radius:12px;cursor:pointer;font-weight:700;font-family:inherit;margin:4px}
+  button:active{transform:scale(.96)}
+  .grid{display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;margin:8px 0}
+  .opt{background:#0009;border:2px solid #fff;border-radius:12px;padding:8px 10px;min-width:120px;cursor:pointer;font-size:13px}
   .opt.sel{outline:4px solid #ffe45e;box-shadow:0 0 14px #ffe45e}
   .opt small{display:block;color:#ffd1f2}
-  canvas.prev{width:90px;height:90px;background:#140f3a;border-radius:10px}
-  #touch{position:fixed;bottom:14px;left:0;right:0;display:none;justify-content:space-between;padding:0 16px;z-index:7}
-  @media (pointer:coarse){#touch{display:flex}}
-  #touch button{font-size:20px;padding:10px 16px;border-radius:14px;border:2px solid #fff;background:#ffffffcc}
   kbd{background:#000;border:1px solid #fff;border-radius:6px;padding:1px 7px;font-size:12px}
-  .pauseItem{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  #touch{position:fixed;bottom:12px;left:0;right:0;display:none;justify-content:space-between;padding:0 14px;z-index:7}
+  @media (pointer:coarse){#touch{display:flex}}
+  #touch button{font-size:20px;padding:10px 15px;border-radius:14px;border:2px solid #fff;background:#ffffffdd;margin:2px}
 </style>
 </head>
 <body>
@@ -43,482 +42,695 @@
 <div id="hud">
   <div class="pill">👧 <b>HARUMI ★</b></div>
   <div class="pill">📍 <b id="hWhere">Rua</b></div>
-  <div class="pill">🍬 <b id="hCandy">0/18</b></div>
+  <div class="pill">🍬 Casa <b id="hCandy">0/18</b></div>
   <div class="pill">💰 <b id="hBank">0</b></div>
   <div class="pill">❤️ <b id="hLives">3</b></div>
-  <div class="pill">⚡ <b id="hSt">100</b></div>
-  <button id="btnPause">⏸ PAUSA</button>
-  <button id="btnCust">🎨 HARUMI</button>
+  <button class="hbtn" id="btnPause">⏸ PAUSA</button>
+  <button class="hbtn" id="btnCust">🎨 HARUMI</button>
 </div>
 <div id="prompt"></div>
 <div id="talk"></div>
 <div id="flash"></div>
 <div id="overlay"><div class="card" id="ovCard"></div></div>
-<div id="touch"><div>
-  <button data-k="a">◀</button><button data-k="w">▲</button><button data-k="s">▼</button><button data-k="d">▶</button>
-</div><div><button id="tE">E</button><button id="tP">⏸</button></div></div>
-
+<div id="touch">
+  <div><button data-k="a">◀</button><button data-k="w">▲</button><button data-k="s">▼</button><button data-k="d">▶</button></div>
+  <div><button id="tE">E</button><button id="tP">⏸</button></div>
+</div>
 <script>
-// ============ SAVE / CUSTOM ============
-let save = {bank:0, best:0, unlocked:['harumi']};
-try{ Object.assign(save, JSON.parse(localStorage.getItem('harumi2d')||'{}')); }catch(e){}
-let custom = {hair:'longo', tiara:'caveira', dress:'branco', glow:'rosa'};
-try{ Object.assign(custom, JSON.parse(localStorage.getItem('harumiCustom')||'{}')); }catch(e){}
-function persist(){ localStorage.setItem('harumi2d', JSON.stringify(save)); localStorage.setItem('harumiCustom', JSON.stringify(custom)); }
-
-// ============ CANVAS ============
-const cv = document.getElementById('game'), ctx = cv.getContext('2d');
-const W=960,H=600;
-const keys={};
-addEventListener('keydown',e=>{
-  const k=e.key.toLowerCase();
-  keys[k]=true;
-  if(k==='e') tryInteract();
-  if(k==='escape'||k==='p') togglePause();
-  if(k==='enter' && state!=='play') startStreet();
-});
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-document.querySelectorAll('#touch [data-k]').forEach(b=>{
-  b.ontouchstart=e=>{e.preventDefault();keys[b.dataset.k]=true};
-  b.ontouchend=()=>keys[b.dataset.k]=false;
-});
-document.getElementById('tE').ontouchstart=e=>{e.preventDefault();tryInteract()};
-document.getElementById('tP').ontouchstart=e=>{e.preventDefault();togglePause()};
-
-// ============ ESTADO ============
-let state='menu', paused=false, muted=false;
-let mode='street'; // street | inside
-let camX=0, camY=0, time=0;
-const P={x:100,y:440,vx:0,vy:0,r:20,speed:230,lives:3,stamina:100,got:0,inv:0,face:1,walk:0};
-let candies=[], ghosts=[], houses=[], parts=[], stars=[];
-for(let i=0;i<120;i++) stars.push({x:Math.random()*3000,y:Math.random()*500,s:Math.random()*2+0.5,tw:Math.random()*6});
-const TOTAL = 18;
-
-function beep(f,d,type){ if(muted) return; try{ const a=beep.c||(beep.c=new (window.AudioContext||window.webkitAudioContext)()); const o=a.createOscillator(),g=a.createGain(); o.type=type||'square'; o.frequency.value=f; o.connect(g);g.connect(a.destination); g.gain.setValueAtTime(.06,a.currentTime); o.start(); o.stop(a.currentTime+d);}catch(e){} }
-function prompt(t,ms){ const el=document.getElementById('prompt'); el.textContent=t; el.style.display='block'; clearTimeout(prompt.t); prompt.t=setTimeout(()=>el.style.display='none',ms||2000); }
-function talk(t,ms){ const el=document.getElementById('talk'); el.textContent=t; el.style.display='block'; clearTimeout(talk.t); talk.t=setTimeout(()=>el.style.display='none',ms||2200); }
-
-// ============ MAPAS ============
-function buildStreet(){
-  mode='street'; houses=[
-    {x:420,name:'Casa Abóbora 🎃',c:'#ff8c00',done:false},
-    {x:1100,name:'Casa Bruxa 🧙',c:'#7c3aed',done:false},
-    {x:1780,name:'Casa Caveira 💀',c:'#38bdf8',done:false},
-  ];
-  candies=[{x:300,y:470,taken:false},{x:820,y:470,taken:false},{x:1450,y:470,taken:false}];
-  ghosts=[ mkGhost(700,400,0), mkGhost(1500,400,1) ];
-  P.x=100;P.y=460;
+'use strict';
+/* ================= SAVE ================= */
+var save = { bank: 0, best: 0 };
+var custom = { hair: 'longo', tiara: 'caveira', dress: 'branco', glow: 'rosa' };
+try {
+  var s1 = JSON.parse(localStorage.getItem('harumi2d_v2') || 'null');
+  if (s1 && typeof s1 === 'object') { if (s1.bank|0) save.bank = s1.bank|0; if (s1.best|0) save.best = s1.best|0; }
+  var s2 = JSON.parse(localStorage.getItem('harumiCustom_v2') || 'null');
+  if (s2 && typeof s2 === 'object') { for (var k in custom) { if (typeof s2[k] === 'string') custom[k] = s2[k]; } }
+} catch (e) {}
+function persist() {
+  try {
+    localStorage.setItem('harumi2d_v2', JSON.stringify(save));
+    localStorage.setItem('harumiCustom_v2', JSON.stringify(custom));
+  } catch (e) {}
 }
-function interiorWalls(hi){
-  // sala 960x600 com divisórias, porta de saída em cima
-  const wl=[
-    {x:0,y:0,w:960,h:24},{x:0,y:576,w:960,h:24},{x:0,y:0,w:24,h:600},{x:936,y:0,w:24,h:600},
-    {x:200,y:120,w:24,h:260},{x:200,y:120,w:300,h:24},{x:560,y:200,w:200,h:24},{x:560,y:224,w:24,h:200},
-    {x:120,y:460,w:300,h:24},{x:560,y:460,w:260,h:24},{x:420,y:280,w:24,h:180},
+
+/* ================= BASE ================= */
+var cv = document.getElementById('game');
+var ctx = cv.getContext('2d');
+var W = 960, H = 600;
+var keys = {};
+var state = 'menu';      // menu | play | win | dead
+var paused = false;
+var customOpen = false;
+var muted = false;
+var time = 0;
+
+var TOTAL = 18, PER_HOUSE = 6;
+var mode = 'street';     // street | inside
+var houseIdx = -1;
+var camX = 0;
+
+var P = { x: 100, y: 470, r: 18, speed: 240, lives: 3, stamina: 100, got: 0, inv: 0, walk: 0 };
+var houses = [];
+var streetCandies = [];
+var streetGhosts = [];
+var inCandies = [];
+var inGhosts = [];
+var walls = [];
+var parts = [];
+var stars = [];
+var i;
+for (i = 0; i < 110; i++) stars.push({ x: Math.random() * 2880, y: Math.random() * 380, s: 1 + Math.random() * 2, tw: Math.random() * 6 });
+
+function $(id) { return document.getElementById(id); }
+function beep(f, d, type) {
+  if (muted) return;
+  try {
+    if (!beep.ac) beep.ac = new (window.AudioContext || window.webkitAudioContext)();
+    var a = beep.ac, o = a.createOscillator(), g = a.createGain();
+    o.type = type || 'square'; o.frequency.value = f;
+    o.connect(g); g.connect(a.destination);
+    g.gain.setValueAtTime(0.06, a.currentTime);
+    o.start(); o.stop(a.currentTime + d);
+  } catch (e) {}
+}
+function showPrompt(t, ms) { var el = $('prompt'); el.textContent = t; el.style.display = 'block'; clearTimeout(showPrompt.t); showPrompt.t = setTimeout(function(){ el.style.display = 'none'; }, ms || 2000); }
+function showTalk(t, ms) { var el = $('talk'); el.textContent = t; el.style.display = 'block'; clearTimeout(showTalk.t); showTalk.t = setTimeout(function(){ el.style.display = 'none'; }, ms || 2400); }
+function flashRed() { var el = $('flash'); el.style.display = 'block'; setTimeout(function(){ el.style.display = 'none'; }, 260); }
+
+/* ================= MAPAS ================= */
+var HOUSE_DEFS = [
+  { x: 420,  name: 'Casa Abóbora 🎃', c: '#ff8c00' },
+  { x: 1100, name: 'Casa Bruxa 🧙',   c: '#a855f7' },
+  { x: 1780, name: 'Casa Caveira 💀', c: '#38bdf8' }
+];
+var IN_SPOTS = [[140,110],[360,90],[620,100],[820,120],[160,300],[360,330],[620,330],[810,300],[150,500],[360,510],[640,510],[810,500]];
+
+function resetRun() {
+  P.x = 100; P.y = 470; P.lives = 3; P.stamina = 100; P.got = 0; P.inv = 0; P.walk = 0;
+  parts = [];
+  houses = HOUSE_DEFS.map(function(h) { return { x: h.x, name: h.name, c: h.c, taken: [false,false,false,false,false,false], done: false }; });
+  streetCandies = [
+    { x: 300, y: 500, taken: false }, { x: 850, y: 500, taken: false },
+    { x: 1450, y: 500, taken: false }, { x: 2050, y: 500, taken: false }
   ];
-  if(hi===1) wl.push({x:700,y:100,w:24,h:200});
-  if(hi===2) wl.push({x:320,y:200,w:200,h:24},{x:700,y:340,w:24,h:140});
+  streetGhosts = [mkGhost(700, 380, 0), mkGhost(1500, 380, 1)];
+  mode = 'street'; houseIdx = -1; camX = 0;
+  walls = []; inCandies = []; inGhosts = [];
+}
+function mkGhost(x, y, v) { return { x: x, y: y, sp: 105 + v * 20, ph: Math.random() * 6, hit: 0 }; }
+
+function interiorWalls(hi) {
+  var wl = [
+    { x: 0, y: 0, w: 960, h: 24 }, { x: 0, y: 576, w: 960, h: 24 },
+    { x: 0, y: 0, w: 24, h: 600 }, { x: 936, y: 0, w: 24, h: 600 },
+    { x: 200, y: 120, w: 24, h: 260 }, { x: 200, y: 120, w: 300, h: 24 },
+    { x: 560, y: 200, w: 200, h: 24 }, { x: 560, y: 224, w: 24, h: 200 },
+    { x: 120, y: 450, w: 300, h: 24 }, { x: 560, y: 450, w: 260, h: 24 },
+    { x: 420, y: 270, w: 24, h: 180 }
+  ];
+  if (hi === 1) wl.push({ x: 700, y: 90, w: 24, h: 200 });
+  if (hi === 2) wl.push({ x: 300, y: 200, w: 220, h: 24 }, { x: 700, y: 330, w: 24, h: 120 });
   return wl;
 }
-let walls=[];
-function enterHouse(i){
-  mode='inside'; houseIdx=i;
-  walls=interiorWalls(i);
-  P.x=480;P.y=520;
-  const spots=[[120,100],[320,80],[640,90],[840,110],[140,300],[340,340],[620,330],[820,300],[140,520],[340,520],[640,520],[820,520]].slice(0,6);
-  candies=spots.map(s=>({x:s[0],y:s[1],taken:false,big:true}));
-  ghosts=[ mkGhost(300,200,i), mkGhost(660,420,i+1), mkGhost(480,150,i+2) ];
-  talk('🏚️ '+houses[i].name+' — ache os 6 doces! Cuidado com os fantasmas 👻',2600);
-  beep(300,.25,'sawtooth');
+function enterHouse(idx) {
+  mode = 'inside'; houseIdx = idx;
+  walls = interiorWalls(idx);
+  P.x = 480; P.y = 520; P.inv = Math.max(P.inv, 0.5);
+  inCandies = [];
+  var hk = houses[idx].taken, n;
+  for (n = 0; n < PER_HOUSE; n++) inCandies.push({ x: IN_SPOTS[n][0], y: IN_SPOTS[n][1], taken: hk[n] });
+  inGhosts = [mkGhost(300, 200, idx), mkGhost(660, 400, idx + 1), mkGhost(480, 140, idx + 2)];
+  showTalk('🏚️ ' + houses[idx].name + ' — ache os doces AQUI DENTRO! (' + countHouse(idx) + '/' + PER_HOUSE + ') 👻', 2600);
+  beep(300, 0.22, 'sawtooth');
 }
-function mkGhost(x,y,v){ return {x,y,vx:0,vy:0,pat:Math.random()*6,sp:110+v*22,home:{x,y},hit:0}; }
+function exitHouse() {
+  var h = houses[houseIdx];
+  h.done = h.taken.every(function(t){ return t; });
+  mode = 'street'; houseIdx = -1; walls = []; inCandies = []; inGhosts = [];
+  P.x = 480; P.y = 470;
+  // volta para frente da casa de onde saiu
+  var hx = h.x + 90;
+  P.x = hx;
+  showTalk(h.done ? '✦ ' + h.name + ' limpa! ✦ Vá para a próxima casa!' : '🎃 Rua Halloween — entre em outra casa com E!', 2200);
+}
+function countHouse(idx) { var c = 0, t = houses[idx].taken, j; for (j = 0; j < t.length; j++) if (t[j]) c++; return c; }
 
-// ============ INTERAÇÃO ============
-function tryInteract(){
-  if(state!=='play'||paused) return;
-  if(mode==='street'){
-    for(let i=0;i<houses.length;i++){ const h=houses[i];
-      if(Math.abs(P.x-(h.x+60))<80 && Math.abs(P.y-430)<90){ enterHouse(i); return; } }
-    prompt('Vá até uma porta e aperte E para entrar 🏠');
+/* ================= INPUT ================= */
+window.addEventListener('keydown', function(e) {
+  var k = e.key.toLowerCase();
+  keys[k] = true;
+  if (k === 'e') doInteract();
+  if (k === 'escape' || k === 'p') togglePause();
+  if (k === 'enter') { if (state === 'menu' || state === 'win' || state === 'dead') startGame(); }
+  if (['arrowup','arrowdown','arrowleft','arrowright',' '].indexOf(k) >= 0) e.preventDefault();
+});
+window.addEventListener('keyup', function(e) { keys[e.key.toLowerCase()] = false; });
+var touchBtns = document.querySelectorAll('#touch [data-k]');
+for (i = 0; i < touchBtns.length; i++) (function(b) {
+  var kk = b.getAttribute('data-k');
+  b.addEventListener('touchstart', function(e){ e.preventDefault(); keys[kk] = true; }, { passive: false });
+  b.addEventListener('touchend', function(){ keys[kk] = false; });
+})(touchBtns[i]);
+$('tE').addEventListener('touchstart', function(e){ e.preventDefault(); doInteract(); }, { passive: false });
+$('tP').addEventListener('touchstart', function(e){ e.preventDefault(); togglePause(); }, { passive: false });
+$('btnPause').onclick = togglePause;
+$('btnCust').onclick = function() { openCustom(state === 'play'); };
+
+function doInteract() {
+  if (state !== 'play' || paused || customOpen) return;
+  var j;
+  if (mode === 'street') {
+    for (j = 0; j < houses.length; j++) {
+      if (Math.abs(P.x - (houses[j].x + 90)) < 95) { enterHouse(j); return; }
+    }
+    showPrompt('Vá até uma porta colorida e aperte E 🏠');
   } else {
-    if(P.y>500 && Math.abs(P.x-480)<90){ mode='street'; P.x=houses[houseIdx].x+60; P.y=460;
-      walls=[]; candies=[{x:300,y:470,taken:false},{x:820,y:470,taken:false}].filter(c=>!c.taken);
-      ghosts=[ mkGhost(700,400,0), mkGhost(1500,400,1) ];
-      talk('🎃 Rua Halloween — entre em outra casa!',2000); return; }
+    if (P.y > 490 && Math.abs(P.x - 480) < 110) exitHouse();
+    else showPrompt('A saída é a porta VERDE embaixo ⬇');
   }
 }
 
-// ============ DESENHO MELHORADO ============
-function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
-function drawSky(cam){
-  const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#150b45'); g.addColorStop(.6,'#3b1470'); g.addColorStop(1,'#a1237a');
-  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-  // lua grande com crateras
-  ctx.save(); ctx.shadowColor='#fff3b0'; ctx.shadowBlur=40;
-  ctx.fillStyle='#fff3b0'; ctx.beginPath(); ctx.arc(800-cam*0.05,110,62,0,7); ctx.fill(); ctx.restore();
-  ctx.fillStyle='#e8d88a'; [[780,95,10],[815,120,14],[795,135,7]].forEach(c=>{ctx.beginPath();ctx.arc(c[0],c[1],c[2],0,7);ctx.fill();});
-  // estrelas
-  stars.forEach(s=>{ const a=.4+.6*Math.abs(Math.sin(time*2+s.tw)); ctx.globalAlpha=a; ctx.fillStyle='#fff'; ctx.fillRect(((s.x-cam)%W+W)%W,s.y,s.s,s.s); }); ctx.globalAlpha=1;
-  // colinas + silhuetas
-  ctx.fillStyle='#170b38'; ctx.beginPath(); ctx.ellipse(200,620,500,120,0,0,7); ctx.ellipse(700,630,600,140,0,0,7); ctx.fill();
+/* ================= DESENHO ================= */
+function rr(x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
 }
-function drawStreet(){
-  drawSky(camX);
-  // chão
-  const g=ctx.createLinearGradient(0,400,0,H); g.addColorStop(0,'#3a2a6e'); g.addColorStop(1,'#1a1038');
-  ctx.fillStyle=g; ctx.fillRect(0,400,W,H-400);
-  ctx.fillStyle='#0e0a26'; ctx.fillRect(0,470,W,70); // rua
-  ctx.fillStyle='#ffe45e'; for(let x=-(camX%80);x<W;x+=80) ctx.fillRect(x,500,40,6);
-  // postes
-  for(let x=200;x<2400;x+=420){ const sx=x-camX; if(sx<-60||sx>W+60)continue;
-    ctx.fillStyle='#111'; ctx.fillRect(sx,250,10,220);
-    ctx.save(); ctx.shadowColor='#ff9d00'; ctx.shadowBlur=25; ctx.fillStyle='#ffb300'; ctx.beginPath(); ctx.arc(sx+5,245,14,0,7); ctx.fill(); ctx.restore(); }
-  // casas
-  houses.forEach((h,i)=>{ const sx=h.x-camX; if(sx<-220||sx>W+220) return;
-    // corpo
-    ctx.save(); ctx.shadowColor=h.c; ctx.shadowBlur=25;
-    ctx.fillStyle='#241545'; ctx.fillRect(sx,240,180,200); ctx.restore();
-    ctx.fillStyle=h.c+'55'; ctx.fillRect(sx,240,180,200);
-    ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.strokeRect(sx,240,180,200);
-    // telhado
-    ctx.fillStyle=h.c; ctx.beginPath(); ctx.moveTo(sx-15,240); ctx.lineTo(sx+90,150); ctx.lineTo(sx+195,240); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#0006'; ctx.beginPath(); ctx.moveTo(sx-15,240); ctx.lineTo(sx+90,150); ctx.lineTo(sx+90,240); ctx.closePath(); ctx.fill();
-    // janelas acesas
-    [[sx+20,290],[sx+120,290]].forEach(p=>{ ctx.save(); ctx.shadowColor='#ffe45e'; ctx.shadowBlur=15; ctx.fillStyle='#ffe45e'; rr(p[0],p[1],40,55,6); ctx.fill(); ctx.restore();
-      ctx.fillStyle='#000'; ctx.fillRect(p[0]+17,p[1],6,55); ctx.fillRect(p[0],p[1]+24,40,6);
-      // silhueta morcego
-      ctx.fillStyle='#000'; ctx.font='16px serif'; ctx.fillText('🦇',p[0]+8,p[1]+20); });
-    // porta
-    const done = houseCandies(i);
-    ctx.save(); ctx.shadowColor= done?'#555':'#22c55e'; ctx.shadowBlur=18;
-    ctx.fillStyle= done?'#555':'#22c55e'; rr(sx+65,360,50,80,8); ctx.fill(); ctx.restore();
-    ctx.fillStyle='#fff'; ctx.font='bold 12px Fredoka'; ctx.fillText(done?'✔':'E ➜',sx+76,402);
-    ctx.fillStyle='#fff'; ctx.font='bold 14px Fredoka'; ctx.fillText(h.name,sx+8,230);
-    // abóbora na frente
-    drawPumpkin(sx+10,448,1); drawPumpkin(sx+140,448,0.8);
-  });
-  // doces rua
-  candies.forEach(c=>{ if(!c.taken) drawCandy(c.x-camX,c.y,1,time); });
+function glowColor() {
+  if (custom.glow === 'azul') return '#38e1ff';
+  if (custom.glow === 'dourado') return '#ffe45e';
+  return '#ff4fc3';
 }
-function houseCandies(i){ return false; }
-function drawInterior(){
-  // papel de parede
-  const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#241040'); g.addColorStop(1,'#120826');
-  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#ffffff10'; for(let y=40;y<H;y+=56) for(let x=0;x<W;x+=56){ ctx.fillRect(x+((y/56)%2)*28,y,2,2); }
-  // chão madeira
-  ctx.fillStyle='#4a2f1d'; ctx.fillRect(0,470,W,130);
-  ctx.fillStyle='#00000033'; for(let y=480;y<H;y+=22) ctx.fillRect(0,y,W,3);
-  // teias
-  ctx.strokeStyle='#ffffff88'; ctx.lineWidth=2;
-  [[40,40],[920,40]].forEach(p=>{ for(let i=0;i<4;i++){ ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(p[0]+(i-1.5)*30,p[1]+60); ctx.stroke(); } });
-  // paredes
-  walls.forEach(wl=>{ ctx.save(); ctx.shadowColor='#a855f7'; ctx.shadowBlur=8;
-    ctx.fillStyle='#5b3a8e'; ctx.fillRect(wl.x,wl.y,wl.w,wl.h);
-    ctx.fillStyle='#7c5cbf'; ctx.fillRect(wl.x,wl.y,wl.w,6); ctx.restore();
-    ctx.strokeStyle='#2a1650'; ctx.strokeRect(wl.x,wl.y,wl.w,wl.h); });
-  // porta saída
-  ctx.save(); ctx.shadowColor='#22c55e'; ctx.shadowBlur=20; ctx.fillStyle='#22c55e'; rr(430,576-34,100,34,8); ctx.fill(); ctx.restore();
-  ctx.fillStyle='#fff'; ctx.font='bold 13px Fredoka'; ctx.fillText('SAÍDA ⬇ (E)',442,572);
-  // velas
-  [[80,440],[880,440],[480,80]].forEach(p=>{ ctx.fillStyle='#fff7d6'; ctx.fillRect(p[0],p[1],10,22);
-    ctx.save(); ctx.shadowColor='#ff9d00'; ctx.shadowBlur=22; ctx.fillStyle='#ff9d00'; ctx.beginPath(); ctx.arc(p[0]+5,p[1]-4,7+Math.sin(time*9+p[0])*1.5,0,7); ctx.fill(); ctx.restore(); });
-  candies.forEach(c=>{ if(!c.taken) drawCandy(c.x,c.y,1.25,time); });
-  // escuridão com luz na Harumi
-  ctx.save(); ctx.globalCompositeOperation='source-over';
-  const d=ctx.createRadialGradient(P.x,P.y,60,P.x,P.y,300);
-  d.addColorStop(0,'rgba(0,0,0,0)'); d.addColorStop(1,'rgba(0,0,0,.55)');
-  ctx.fillStyle=d; ctx.fillRect(0,0,W,H); ctx.restore();
+function dressColor() {
+  if (custom.dress === 'rosa') return '#ff8fd6';
+  if (custom.dress === 'azul') return '#38bdf8';
+  return '#f8fafc';
 }
-function drawPumpkin(x,y,s){
-  ctx.save(); ctx.translate(x,y); ctx.scale(s,s);
-  ctx.shadowColor='#ff8c00'; ctx.shadowBlur=16;
-  ctx.fillStyle='#ff7b00'; ctx.beginPath(); ctx.ellipse(0,0,22,18,0,0,7); ctx.fill();
-  ctx.fillStyle='#e56b00'; ctx.beginPath(); ctx.ellipse(-8,0,10,17,0,0,7); ctx.fill(); ctx.beginPath(); ctx.ellipse(8,0,10,17,0,0,7); ctx.fill();
-  ctx.shadowBlur=0; ctx.fillStyle='#3a1c00'; ctx.fillRect(-3,-26,6,10);
-  ctx.fillStyle='#ffe45e'; ctx.fillRect(-13,-8,9,9); ctx.fillRect(4,-8,9,9);
-  ctx.beginPath(); ctx.moveTo(-12,8); ctx.lineTo(-4,2); ctx.lineTo(4,8); ctx.lineTo(12,8); ctx.lineTo(12,14); ctx.lineTo(-12,14); ctx.closePath(); ctx.fill();
+function drawBackgroundStreet() {
+  var g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#150b45'); g.addColorStop(0.6, '#3b1470'); g.addColorStop(1, '#a1237a');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.shadowColor = '#fff3b0'; ctx.shadowBlur = 40;
+  ctx.fillStyle = '#fff3b0'; ctx.beginPath(); ctx.arc(800 - camX * 0.05, 105, 58, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  ctx.fillStyle = '#e8d88a';
+  ctx.beginPath(); ctx.arc(782, 92, 9, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(815, 118, 12, 0, Math.PI * 2); ctx.fill();
+  var j;
+  for (j = 0; j < stars.length; j++) {
+    var s = stars[j];
+    var sx = (((s.x - camX) % W) + W) % W;
+    ctx.globalAlpha = 0.35 + 0.6 * Math.abs(Math.sin(time * 2 + s.tw));
+    ctx.fillStyle = '#fff'; ctx.fillRect(sx, s.y, s.s, s.s);
+  }
+  ctx.globalAlpha = 1;
+  var gg = ctx.createLinearGradient(0, 400, 0, H);
+  gg.addColorStop(0, '#3a2a6e'); gg.addColorStop(1, '#1a1038');
+  ctx.fillStyle = gg; ctx.fillRect(0, 400, W, H - 400);
+  ctx.fillStyle = '#0e0a26'; ctx.fillRect(0, 478, W, 64);
+  ctx.fillStyle = '#ffe45e';
+  var x;
+  for (x = -(camX % 80); x < W; x += 80) ctx.fillRect(x, 506, 40, 6);
+}
+function drawLamp(sx) {
+  ctx.fillStyle = '#111'; ctx.fillRect(sx, 252, 10, 226);
+  ctx.save(); ctx.shadowColor = '#ff9d00'; ctx.shadowBlur = 22;
+  ctx.fillStyle = '#ffb300'; ctx.beginPath(); ctx.arc(sx + 5, 246, 13, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+}
+function drawPumpkin(x, y, s) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  ctx.shadowColor = '#ff8c00'; ctx.shadowBlur = 14;
+  ctx.fillStyle = '#ff7b00'; ctx.beginPath(); ctx.ellipse(0, 0, 22, 18, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#3a1c00'; ctx.fillRect(-3, -27, 6, 10);
+  ctx.fillStyle = '#ffe45e'; ctx.fillRect(-13, -8, 9, 9); ctx.fillRect(4, -8, 9, 9);
+  ctx.beginPath(); ctx.moveTo(-12, 7); ctx.lineTo(-4, 1); ctx.lineTo(4, 7); ctx.lineTo(12, 7); ctx.lineTo(12, 13); ctx.lineTo(-12, 13); ctx.closePath(); ctx.fill();
   ctx.restore();
 }
-function drawCandy(x,y,s,t){
-  if(x<-30||x>W+30) return;
-  ctx.save(); ctx.translate(x,y+Math.sin(t*3+x)*4); ctx.scale(s,s); ctx.shadowColor='#ff4fc3'; ctx.shadowBlur=16;
-  ctx.rotate(Math.sin(t*2+x)*0.3);
-  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.moveTo(-22,0); ctx.lineTo(-12,-9); ctx.lineTo(-12,9); ctx.closePath(); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(22,0); ctx.lineTo(12,-9); ctx.lineTo(12,9); ctx.closePath(); ctx.fill();
-  const g=ctx.createLinearGradient(-12,0,12,0); g.addColorStop(0,'#ff4fc3'); g.addColorStop(.5,'#fff'); g.addColorStop(1,'#38bdf8');
-  ctx.fillStyle=g; rr(-13,-10,26,20,9); ctx.fill();
-  ctx.strokeStyle='#fff'; ctx.lineWidth=2; rr(-13,-10,26,20,9); ctx.stroke();
-  ctx.fillStyle='#ff2e88'; ctx.font='bold 13px serif'; ctx.fillText('🍬',-9,6);
+function drawHouse(h) {
+  var sx = h.x - camX;
+  if (sx < -240 || sx > W + 240) return;
+  ctx.save(); ctx.shadowColor = h.c; ctx.shadowBlur = 22;
+  ctx.fillStyle = '#241545'; ctx.fillRect(sx, 244, 180, 200); ctx.restore();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.strokeRect(sx, 244, 180, 200);
+  ctx.fillStyle = h.c; ctx.beginPath(); ctx.moveTo(sx - 15, 244); ctx.lineTo(sx + 90, 158); ctx.lineTo(sx + 195, 244); ctx.closePath(); ctx.fill();
+  var wins = [[sx + 22, 292], [sx + 118, 292]], j;
+  for (j = 0; j < 2; j++) {
+    ctx.save(); ctx.shadowColor = '#ffe45e'; ctx.shadowBlur = 14;
+    ctx.fillStyle = '#ffe45e'; rr(wins[j][0], wins[j][1], 40, 52, 6); ctx.fill(); ctx.restore();
+    ctx.fillStyle = '#000'; ctx.fillRect(wins[j][0] + 17, wins[j][1], 6, 52); ctx.fillRect(wins[j][0], wins[j][1] + 23, 40, 6);
+  }
+  var n = 0, t, jj;
+  for (jj = 0; jj < h.taken.length; jj++) if (h.taken[jj]) n++;
+  var done = (n >= PER_HOUSE);
+  ctx.save(); ctx.shadowColor = done ? '#888' : '#22c55e'; ctx.shadowBlur = 18;
+  ctx.fillStyle = done ? '#666' : '#22c55e'; rr(sx + 65, 364, 50, 80, 8); ctx.fill(); ctx.restore();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 13px Fredoka, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(done ? '✔' : 'E ➜', sx + 90, 408);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Fredoka, sans-serif';
+  ctx.fillText(h.name, sx + 90, 232);
+  ctx.fillStyle = '#ffe45e'; ctx.font = 'bold 12px Fredoka, sans-serif';
+  ctx.fillText(n + '/' + PER_HOUSE + ' 🍬', sx + 90, 458);
+  ctx.textAlign = 'left';
+  drawPumpkin(sx + 12, 452, 1); drawPumpkin(sx + 168, 452, 0.8);
+}
+function drawCandy(x, y, big) {
+  if (x < -30 || x > W + 30) return;
+  var s = big ? 1.25 : 1;
+  ctx.save(); ctx.translate(x, y + Math.sin(time * 3 + x * 0.05) * 4); ctx.scale(s, s);
+  ctx.rotate(Math.sin(time * 2 + x * 0.05) * 0.3);
+  ctx.shadowColor = '#ff4fc3'; ctx.shadowBlur = 16;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.moveTo(-22, 0); ctx.lineTo(-12, -9); ctx.lineTo(-12, 9); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(22, 0); ctx.lineTo(12, -9); ctx.lineTo(12, 9); ctx.closePath(); ctx.fill();
+  var g = ctx.createLinearGradient(-12, 0, 12, 0);
+  g.addColorStop(0, '#ff4fc3'); g.addColorStop(0.5, '#ffffff'); g.addColorStop(1, '#38bdf8');
+  ctx.fillStyle = g; rr(-13, -10, 26, 20, 9); ctx.fill();
+  ctx.shadowBlur = 0; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; rr(-13, -10, 26, 20, 9); ctx.stroke();
+  ctx.fillStyle = '#c21485'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('🍬', 0, 5); ctx.textAlign = 'left';
   ctx.restore();
 }
-// HARUMI — a mais destacada: maior, glow, nome, sparkles
-function drawHarumi(x,y,opt){
-  opt=opt||custom;
-  const s=1.55; // maior que tudo
-  ctx.save(); ctx.translate(x,y);
-  // glow da customização
-  const glowC = opt.glow==='azul'?'#38e1ff':opt.glow==='dourado'?'#ffe45e':'#ff4fc3';
-  ctx.shadowColor=glowC; ctx.shadowBlur=30;
-  // sombra
-  ctx.shadowBlur=0; ctx.fillStyle='#0007'; ctx.beginPath(); ctx.ellipse(0,26,24,8,0,0,7); ctx.fill();
-  ctx.shadowColor=glowC; ctx.shadowBlur=26;
-  // anel destaque
-  ctx.strokeStyle=glowC; ctx.lineWidth=3; ctx.setLineDash([8,6]); ctx.lineDashOffset=-time*30;
-  ctx.beginPath(); ctx.ellipse(0,10,30,34,0,0,7); ctx.stroke(); ctx.setLineDash([]);
-  // pernas
-  ctx.fillStyle='#1c1033'; ctx.fillRect(-14,-2,11,28); ctx.fillRect(3,-2,11,28);
-  ctx.fillStyle='#ff4fc3'; ctx.fillRect(-14,20,11,6); ctx.fillRect(3,20,11,6);
-  // vestido
-  const dc = opt.dress==='rosa'?'#ff8fd6':opt.dress==='azul'?'#38bdf8':'#f8fafc';
-  ctx.fillStyle=dc; ctx.beginPath(); ctx.moveTo(-10,-2); ctx.lineTo(10,-2); ctx.lineTo(20,22); ctx.lineTo(-20,22); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
-  // caveirinha no vestido
-  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(0,8,9,0,7); ctx.fill();
-  ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(-3.5,7,2.4,0,7); ctx.arc(3.5,7,2.4,0,7); ctx.fill();
-  ctx.fillRect(-2,12,4,3);
-  // braços
-  ctx.fillStyle='#ffe0c4'; ctx.fillRect(-24,-14,9,22); ctx.fillRect(15,-14,9,22);
-  // cabeça
-  ctx.fillStyle='#ffe0c4'; ctx.beginPath(); ctx.arc(0,-30,17,0,7); ctx.fill(); ctx.strokeStyle='#fff'; ctx.stroke();
-  // cabelo azul-marinho (estilos)
-  ctx.fillStyle='#16265e';
-  if(opt.hair==='coques'){ ctx.beginPath(); ctx.arc(-16,-46,9,0,7); ctx.arc(16,-46,9,0,7); ctx.fill(); ctx.fillRect(-18,-46,36,22); }
-  else if(opt.hair==='curto'){ rr(-19,-52,38,20,8); ctx.fill(); }
-  else { rr(-20,-52,40,22,8); ctx.fill(); ctx.fillRect(-22,-34,10,34); ctx.fillRect(12,-34,10,34); }
-  ctx.fillStyle='#16265e'; ctx.fillRect(-15,-38,30,8); // franja
-  // olhos rosados grandes
-  ctx.fillStyle='#ff7ac8'; ctx.beginPath(); ctx.arc(-6.5,-28,4.6,0,7); ctx.arc(6.5,-28,4.6,0,7); ctx.fill();
-  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-5.5,-29.5,1.6,0,7); ctx.arc(7.5,-29.5,1.6,0,7); ctx.fill();
-  ctx.fillStyle='#7c2d12'; ctx.beginPath(); ctx.arc(0,-18,2.2,0,7); ctx.fill();
-  // tiara
-  ctx.font='15px serif';
-  ctx.fillText(opt.tiara==='abobora'?'🎃':opt.tiara==='bruxa'?'🧙':'💀',-8,-48);
-  // sparkles destaque
-  ctx.shadowBlur=0;
-  for(let i=0;i<5;i++){ const a=time*3+i*1.256; const sx2=Math.cos(a)*34, sy2=Math.sin(a)*38+2;
-    ctx.fillStyle=['#fff','#ffe45e','#ff4fc3'][i%3]; ctx.globalAlpha=.7+.3*Math.sin(time*6+i);
-    ctx.fillText('✦',sx2-5,sy2); }
-  ctx.globalAlpha=1;
-  // nome
-  ctx.fillStyle='#fff'; ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.font='bold 13px Fredoka';
-  ctx.strokeText('HARUMI ★',-32,-62); ctx.fillText('HARUMI ★',-32,-62);
+/* HARUMI — maior e com brilho forte */
+function drawHarumi(x, y) {
+  var gc = glowColor(), dc = dressColor();
+  ctx.save(); ctx.translate(x, y);
+  ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.beginPath(); ctx.ellipse(0, 28, 24, 8, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowColor = gc; ctx.shadowBlur = 28;
+  ctx.strokeStyle = gc; ctx.lineWidth = 3; ctx.setLineDash([8, 6]); ctx.lineDashOffset = -time * 30;
+  ctx.beginPath(); ctx.ellipse(0, 2, 30, 40, 0, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+  var bob = Math.sin(time * 6) * 1.5;
+  ctx.translate(0, bob);
+  ctx.fillStyle = '#1c1033'; ctx.fillRect(-14, 0, 11, 28); ctx.fillRect(3, 0, 11, 28);
+  ctx.fillStyle = '#ff4fc3'; ctx.fillRect(-14, 22, 11, 6); ctx.fillRect(3, 22, 11, 6);
+  ctx.fillStyle = dc; ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(10, 0); ctx.lineTo(20, 24); ctx.lineTo(-20, 24); ctx.closePath(); ctx.fill();
+  ctx.shadowBlur = 0; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, 10, 9, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(-3.5, 9, 2.4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(3.5, 9, 2.4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillRect(-2, 14, 4, 3);
+  ctx.fillStyle = '#ffe0c4'; ctx.fillRect(-25, -14, 9, 22); ctx.fillRect(16, -14, 9, 22);
+  ctx.fillStyle = '#ffe0c4'; ctx.beginPath(); ctx.arc(0, -30, 17, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#16265e';
+  if (custom.hair === 'coques') {
+    ctx.beginPath(); ctx.arc(-17, -46, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(17, -46, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.fillRect(-18, -48, 36, 22);
+  } else if (custom.hair === 'curto') {
+    rr(-19, -52, 38, 20, 8); ctx.fill();
+  } else {
+    rr(-20, -52, 40, 22, 8); ctx.fill();
+    ctx.fillRect(-22, -34, 10, 34); ctx.fillRect(12, -34, 10, 34);
+  }
+  ctx.fillRect(-15, -38, 30, 8);
+  ctx.fillStyle = '#ff7ac8';
+  ctx.beginPath(); ctx.arc(-6.5, -28, 4.6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(6.5, -28, 4.6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(-5.4, -29.5, 1.6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(7.6, -29.5, 1.6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#7c2d12'; ctx.beginPath(); ctx.arc(0, -18, 2.2, 0, Math.PI * 2); ctx.fill();
+  ctx.font = '15px serif'; ctx.fillText(custom.tiara === 'abobora' ? '🎃' : custom.tiara === 'bruxa' ? '🧙' : '💀', -8, -44);
+  var j;
+  for (j = 0; j < 5; j++) {
+    var a = time * 3 + j * 1.256;
+    ctx.globalAlpha = 0.65 + 0.35 * Math.sin(time * 6 + j);
+    ctx.fillStyle = ['#fff', '#ffe45e', '#ff4fc3'][j % 3];
+    ctx.fillText('✦', Math.cos(a) * 36 - 5, Math.sin(a) * 42 + 4);
+  }
+  ctx.globalAlpha = 1;
+  ctx.lineWidth = 4; ctx.strokeStyle = '#000'; ctx.font = 'bold 13px Fredoka, sans-serif'; ctx.textAlign = 'center';
+  ctx.strokeText('HARUMI ★', 0, -64); ctx.fillStyle = '#fff'; ctx.fillText('HARUMI ★', 0, -64); ctx.textAlign = 'left';
   ctx.restore();
 }
-function drawGhost(g){
-  ctx.save(); ctx.translate(g.x,g.y+Math.sin(time*4+g.pat)*5);
-  const flash = g.hit>0;
-  ctx.shadowColor= flash?'#ff0000':'#9fd8ff'; ctx.shadowBlur=20;
-  ctx.fillStyle= flash?'#ff8888':'#f4faff';
-  ctx.beginPath(); ctx.moveTo(-20,20);
-  ctx.lineTo(-20,-8); ctx.quadraticCurveTo(-20,-26,0,-26); ctx.quadraticCurveTo(20,-26,20,-8); ctx.lineTo(20,20);
-  for(let i=0;i<4;i++){ ctx.lineTo(10-i*10,12+((i+Math.floor(time*6)%2)%2)*8); }
+function drawGhost(g, sx) {
+  var x = (typeof sx === 'number') ? sx : g.x;
+  ctx.save(); ctx.translate(x, g.y + Math.sin(time * 4 + g.ph) * 5);
+  var bad = g.hit > 0;
+  ctx.shadowColor = bad ? '#ff0000' : '#9fd8ff'; ctx.shadowBlur = 20;
+  ctx.fillStyle = bad ? '#ff9999' : '#f4faff';
+  ctx.beginPath(); ctx.moveTo(-20, 20);
+  ctx.lineTo(-20, -8); ctx.quadraticCurveTo(-20, -26, 0, -26); ctx.quadraticCurveTo(20, -26, 20, -8); ctx.lineTo(20, 20);
+  ctx.lineTo(10, 12); ctx.lineTo(0, 20); ctx.lineTo(-10, 12); ctx.lineTo(-20, 20);
   ctx.closePath(); ctx.fill();
-  ctx.shadowBlur=0;
-  // olhos bravos
-  ctx.fillStyle='#111'; ctx.beginPath(); ctx.ellipse(-7,-8,4.5,6,0,0,7); ctx.ellipse(7,-8,4.5,6,0,0,7); ctx.fill();
-  ctx.fillStyle='#ff2e88'; ctx.beginPath(); ctx.arc(-7,-8,1.8,0,7); ctx.arc(7,-8,1.8,0,7); ctx.fill();
-  ctx.strokeStyle='#111'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(-12,-18); ctx.lineTo(-2,-14); ctx.moveTo(12,-18); ctx.lineTo(2,-14); ctx.stroke();
-  ctx.fillStyle='#111'; ctx.beginPath(); ctx.ellipse(0,6,4,6,0,0,7); ctx.fill();
-  ctx.fillStyle='#fff'; ctx.font='bold 11px Fredoka'; ctx.fillText('BOO!',-14,-30);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.ellipse(-7, -8, 4.5, 6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(7, -8, 4.5, 6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ff2e88';
+  ctx.beginPath(); ctx.arc(-7, -8, 1.8, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(7, -8, 1.8, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(-12, -18); ctx.lineTo(-2, -14); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(12, -18); ctx.lineTo(2, -14); ctx.stroke();
+  ctx.fillStyle = '#111'; ctx.beginPath(); ctx.ellipse(0, 7, 4, 6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#5b6b8c'; ctx.font = 'bold 11px Fredoka, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('BOO!', 0, -30); ctx.textAlign = 'left';
   ctx.restore();
 }
-function drawParts(){
-  parts=parts.filter(p=>p.l>0);
-  parts.forEach(p=>{ p.x+=p.vx*0.016; p.y+=p.vy*0.016; p.l-=0.016;
-    ctx.globalAlpha=Math.max(0,p.l); ctx.fillStyle=p.c; ctx.fillRect(p.x,p.y,p.s,p.s); });
-  ctx.globalAlpha=1;
+function drawInterior() {
+  var g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#241040'); g.addColorStop(1, '#120826');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(255,255,255,.08)';
+  var x, y;
+  for (y = 48; y < H; y += 56) for (x = 0; x < W; x += 56) ctx.fillRect(x + ((y / 56) % 2) * 28, y, 2, 2);
+  ctx.fillStyle = '#4a2f1d'; ctx.fillRect(0, 470, W, 130);
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; for (y = 484; y < H; y += 22) ctx.fillRect(0, y, W, 3);
+  ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 2;
+  var corners = [[30, 30], [930, 30]], c, j;
+  for (c = 0; c < 2; c++) for (j = 0; j < 4; j++) {
+    ctx.beginPath(); ctx.moveTo(corners[c][0], corners[c][1]);
+    ctx.lineTo(corners[c][0] + (j - 1.5) * 26, corners[c][1] + 62); ctx.stroke();
+  }
+  for (j = 0; j < walls.length; j++) {
+    var wl = walls[j];
+    ctx.save(); ctx.shadowColor = '#a855f7'; ctx.shadowBlur = 8;
+    ctx.fillStyle = '#5b3a8e'; ctx.fillRect(wl.x, wl.y, wl.w, wl.h);
+    ctx.fillStyle = '#7c5cbf'; ctx.fillRect(wl.x, wl.y, wl.w, 6); ctx.restore();
+    ctx.strokeStyle = '#2a1650'; ctx.lineWidth = 2; ctx.strokeRect(wl.x, wl.y, wl.w, wl.h);
+  }
+  ctx.save(); ctx.shadowColor = '#22c55e'; ctx.shadowBlur = 20;
+  ctx.fillStyle = '#22c55e'; rr(430, 542, 100, 34, 8); ctx.fill(); ctx.restore();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 13px Fredoka, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('SAÍDA ⬇ (E)', 480, 564); ctx.textAlign = 'left';
+  var cds = [[80, 440], [880, 440], [480, 66]], q;
+  for (q = 0; q < cds.length; q++) {
+    ctx.fillStyle = '#fff7d6'; ctx.fillRect(cds[q][0], cds[q][1], 10, 22);
+    ctx.save(); ctx.shadowColor = '#ff9d00'; ctx.shadowBlur = 22;
+    ctx.fillStyle = '#ff9d00';
+    ctx.beginPath(); ctx.arc(cds[q][0] + 5, cds[q][1] - 4, 7 + Math.sin(time * 9 + cds[q][0]) * 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+  for (q = 0; q < inCandies.length; q++) if (!inCandies[q].taken) drawCandy(inCandies[q].x, inCandies[q].y, true);
+  var d = ctx.createRadialGradient(P.x, P.y, 60, P.x, P.y, 320);
+  d.addColorStop(0, 'rgba(0,0,0,0)'); d.addColorStop(1, 'rgba(0,0,0,.55)');
+  ctx.fillStyle = d; ctx.fillRect(0, 0, W, H);
 }
-function burst(x,y,c,n){ for(let i=0;i<(n||14);i++){ const a=Math.random()*7,sp=60+Math.random()*160;
-  parts.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-60,l:.6+Math.random()*.5,c:c||'#ffe45e',s:3+Math.random()*4}); } }
+function drawParts() {
+  var alive = [], j;
+  for (j = 0; j < parts.length; j++) {
+    var p = parts[j];
+    p.x += p.vx * 0.016; p.y += p.vy * 0.016; p.l -= 0.016;
+    if (p.l > 0) { alive.push(p); ctx.globalAlpha = Math.min(1, p.l * 1.6); ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, p.s, p.s); }
+  }
+  parts = alive; ctx.globalAlpha = 1;
+}
+function burst(x, y, c, n) {
+  var j;
+  for (j = 0; j < (n || 14); j++) {
+    var a = Math.random() * Math.PI * 2, sp = 60 + Math.random() * 160;
+    parts.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60, l: 0.6 + Math.random() * 0.5, c: c || '#ffe45e', s: 3 + Math.random() * 4 });
+  }
+}
 
-// ============ UPDATE ============
-function rectHit(px,py,r,wl){ return px+r>wl.x&&px-r<wl.x+wl.w&&py+r>wl.y&&py-r<wl.y+wl.h; }
-function update(dt){
-  time+=dt;
-  if(state!=='play'||paused) return;
-  let ax=0,ay=0;
-  if(keys['w']||keys['arrowup'])ay-=1; if(keys['s']||keys['arrowdown'])ay+=1;
-  if(keys['a']||keys['arrowleft'])ax-=1; if(keys['d']||keys['arrowright'])ax+=1;
-  const moving=ax||ay;
-  const wantRun=(keys['shift'])&&moving&&P.stamina>1;
-  let sp=P.speed*(wantRun?1.6:1);
-  if(P.stamina<=0) sp*=0.6;
-  if(moving){ const l=Math.hypot(ax,ay); ax/=l; ay/=l; P.walk+=dt*10; P.face=ax<0?-1:ax>0?1:P.face; }
-  if(wantRun)P.stamina=Math.max(0,P.stamina-22*dt); else P.stamina=Math.min(100,P.stamina+(moving?8:16)*dt);
-  let nx=P.x+ax*sp*dt, ny=P.y+ay*sp*dt;
-  if(mode==='inside'){ for(const wl of walls){ if(rectHit(nx,P.y,P.r-6,wl)){nx=P.x;break;} } for(const wl of walls){ if(rectHit(nx,ny,P.r-6,wl)){ny=P.y;break;} }
-    nx=Math.max(30,nx); nx=Math.min(930,nx); ny=Math.max(30,ny); ny=Math.min(570,ny);
-  } else { nx=Math.max(20,Math.min(2380,nx)); ny=430+Math.sin(nx*0.01)*8; }
-  P.x=nx;P.y=ny;
-  if(P.inv>0)P.inv-=dt;
-  // camera
-  if(mode==='street'){ camX=Math.max(0,Math.min(2400-W,P.x-W/2)); camY=0; }
-  else { camX=0; camY=0; }
-  // doces
-  const magnet=26;
-  candies.forEach(c=>{ if(c.taken)return;
-    const cx=mode==='street'?c.x-camX:c.x, cy=c.y;
-    const px=mode==='street'?P.x-camX:P.x;
-    if(Math.hypot(px-cx,P.y-cy)<magnet+14){ c.taken=true; P.got++; save.bank++; persist();
-      P.stamina=Math.min(100,P.stamina+25); burst(P.x,P.y-20,'#ff4fc3',16); beep(700+Math.random()*300,.12);
-      if(P.got>=TOTAL) winGame(); else if(P.got%6===0) talk('✦ Casa limpa! Volte à rua (porta verde) e entre na próxima! ✦',2500);
-    }});
-  // fantasmas
-  ghosts.forEach(g=>{
-    if(g.hit>0)g.hit-=dt;
-    g.pat+=dt;
-    const d=Math.hypot(P.x-g.x,P.y-g.y);
-    let vx,vy;
-    if(d<260){ vx=(P.x-g.x)/ (d||1); vy=(P.y-g.y)/(d||1); }
-    else { vx=Math.cos(g.pat*0.8)*0.6; vy=Math.sin(g.pat*1.1)*0.6; }
-    g.x+=vx*g.sp*dt; g.y+=vy*g.sp*dt*0.8;
-    if(mode==='inside'){ g.x=Math.max(40,Math.min(920,g.x)); g.y=Math.max(40,Math.min(560,g.y)); }
-    if(d<34&&P.inv<=0){ P.lives--; P.inv=2; g.hit=1; save.bank=Math.max(0,save.bank-2); persist();
-      document.getElementById('flash').style.display='block'; setTimeout(()=>document.getElementById('flash').style.display='none',250);
-      burst(P.x,P.y,'#ff4fc3',20); beep(130,.4,'sawtooth'); talk('👻 BOO! O fantasma te assustou! Vidas: '+P.lives,2000);
-      if(P.lives<=0) deadGame(); else prompt('Ai! Vidas: '+P.lives);
+/* ================= UPDATE ================= */
+function hitWall(px, py, r, wl) { return px + r > wl.x && px - r < wl.x + wl.w && py + r > wl.y && py - r < wl.y + wl.h; }
+function update(dt) {
+  time += dt;
+  if (state !== 'play' || paused || customOpen) return;
+  var ax = 0, ay = 0;
+  if (keys['w'] || keys['arrowup']) ay -= 1;
+  if (keys['s'] || keys['arrowdown']) ay += 1;
+  if (keys['a'] || keys['arrowleft']) ax -= 1;
+  if (keys['d'] || keys['arrowright']) ax += 1;
+  var moving = (ax !== 0 || ay !== 0);
+  var wantRun = !!keys['shift'] && moving && P.stamina > 1;
+  var sp = P.speed * (wantRun ? 1.6 : 1);
+  if (P.stamina <= 0) sp *= 0.6;
+  if (moving) { var l = Math.sqrt(ax * ax + ay * ay); ax /= l; ay /= l; P.walk += dt * 10; }
+  if (wantRun) P.stamina = Math.max(0, P.stamina - 22 * dt);
+  else P.stamina = Math.min(100, P.stamina + (moving ? 8 : 16) * dt);
+
+  var nx = P.x + ax * sp * dt, ny = P.y + ay * sp * dt, j, wl;
+  if (mode === 'inside') {
+    for (j = 0; j < walls.length; j++) { wl = walls[j]; if (hitWall(nx, P.y, P.r - 6, wl)) { nx = P.x; break; } }
+    for (j = 0; j < walls.length; j++) { wl = walls[j]; if (hitWall(nx, ny, P.r - 6, wl)) { ny = P.y; break; } }
+    if (nx < 34) nx = 34; if (nx > 926) nx = 926;
+    if (ny < 34) ny = 34; if (ny > 566) ny = 566;
+  } else {
+    if (nx < 20) nx = 20; if (nx > 2380) nx = 2380;
+    ny = 470; // rua: anda só na horizontal/faixa
+    if (ay !== 0) ny = 470 + ay * 24;
+    if (ny < 440) ny = 440; if (ny > 500) ny = 500;
+  }
+  P.x = nx; P.y = ny;
+  if (P.inv > 0) P.inv -= dt;
+  if (mode === 'street') {
+    camX = P.x - W / 2;
+    if (camX < 0) camX = 0; if (camX > 2380 - W) camX = 2380 - W;
+  } else camX = 0;
+
+  // doces da RUA = só moeda (não contam meta)
+  if (mode === 'street') {
+    for (j = 0; j < streetCandies.length; j++) {
+      var sc = streetCandies[j];
+      if (!sc.taken && Math.abs(P.x - sc.x) < 34 && Math.abs(P.y - sc.y) < 40) {
+        sc.taken = true; save.bank++; persist();
+        P.stamina = Math.min(100, P.stamina + 20);
+        burst(P.x - camX, P.y - 20, '#38bdf8', 12); beep(660, 0.1);
+        showPrompt('🍬 +1 moeda! Os da META estão DENTRO das casas 🏠');
+      }
     }
-  });
-  // folhas
-  if(Math.random()<0.15) parts.push({x:camX+Math.random()*W,y:-10,vx:-30,vy:80,l:4,c:['#ff8c00','#ff4fc3','#38bdf8'][Math.floor(Math.random()*3)],s:4});
-  document.getElementById('hCandy').textContent=P.got+'/'+TOTAL;
-  document.getElementById('hBank').textContent=save.bank;
-  document.getElementById('hLives').textContent=P.lives;
-  document.getElementById('hSt').textContent=Math.floor(P.stamina);
-  document.getElementById('hWhere').textContent=mode==='street'?'Rua Halloween 🎃':houses[houseIdx].name;
+  } else {
+    // doces DENTRO = meta + moeda
+    for (j = 0; j < inCandies.length; j++) {
+      var ic = inCandies[j];
+      if (!ic.taken) {
+        var dd = Math.sqrt((P.x - ic.x) * (P.x - ic.x) + (P.y - ic.y) * (P.y - ic.y));
+        if (dd < 40) {
+          ic.taken = true; houses[houseIdx].taken[j] = true;
+          houses[houseIdx].done = houses[houseIdx].taken.every(function(t){ return t; });
+          P.got++; save.bank++; persist();
+          P.stamina = Math.min(100, P.stamina + 25);
+          burst(P.x, P.y - 20, '#ff4fc3', 16); beep(700 + Math.random() * 300, 0.12);
+          if (P.got >= TOTAL) { winGame(); return; }
+          if (houses[houseIdx].done) showTalk('✦ ' + houses[houseIdx].name + ' limpa! Desça à porta verde e aperte E! ✦', 2600);
+        }
+      }
+    }
+  }
+  // fantasmas
+  var list = (mode === 'street') ? streetGhosts : inGhosts;
+  for (j = 0; j < list.length; j++) {
+    var gh = list[j];
+    if (gh.hit > 0) gh.hit -= dt;
+    gh.ph += dt;
+    var dx = P.x - gh.x, dy = P.y - gh.y;
+    var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    var vx, vy;
+    if (dist < 260) { vx = dx / dist; vy = dy / dist; }
+    else { vx = Math.cos(gh.ph * 0.8) * 0.6; vy = Math.sin(gh.ph * 1.1) * 0.6; }
+    gh.x += vx * gh.sp * dt; gh.y += vy * gh.sp * dt * 0.85;
+    if (mode === 'inside') {
+      if (gh.x < 40) gh.x = 40; if (gh.x > 920) gh.x = 920;
+      if (gh.y < 40) gh.y = 40; if (gh.y > 560) gh.y = 560;
+    } else {
+      if (gh.x < 40) gh.x = 40; if (gh.x > 2360) gh.x = 2360;
+      if (gh.y < 330) gh.y = 330; if (gh.y > 500) gh.y = 500;
+    }
+    if (dist < 36 && P.inv <= 0) {
+      P.lives--; P.inv = 2; gh.hit = 1;
+      save.bank = Math.max(0, save.bank - 2); persist();
+      flashRed(); burst(mode === 'street' ? P.x - camX : P.x, P.y, '#ff4fc3', 20);
+      beep(130, 0.4, 'sawtooth');
+      if (P.lives <= 0) { deadGame(); return; }
+      showTalk('👻 BOO! Fantasma te assustou! Vidas: ' + P.lives, 2000);
+    }
+  }
+  if (Math.random() < 0.12) parts.push({ x: camX + Math.random() * W, y: -10, vx: -30, vy: 80, l: 4, c: ['#ff8c00', '#ff4fc3', '#38bdf8'][(Math.random() * 3) | 0], s: 4 });
+  $('hCandy').textContent = P.got + '/' + TOTAL;
+  $('hBank').textContent = save.bank;
+  $('hLives').textContent = P.lives;
+  $('hWhere').textContent = (mode === 'street') ? 'Rua Halloween 🎃' : houses[houseIdx].name;
 }
-function render(){
-  ctx.clearRect(0,0,W,H);
-  if(mode==='street'){ drawStreet();
-    // player rua
-    drawHarumi(P.x-camX,P.y);
-    ghosts.forEach(g=>{ const sx=g.x-camX; if(sx>-40&&sx<W+40){ const tmp={...g,x:sx}; drawGhost(tmp);} });
-    // dica portas
-    houses.forEach(h=>{ if(Math.abs(P.x-(h.x+60))<80){ ctx.fillStyle='#fff'; ctx.font='bold 14px Fredoka';
-      ctx.fillText('Aperte E para entrar 🏠',h.x-camX-30,470); } });
-  } else { drawInterior(); drawHarumi(P.x,P.y); ghosts.forEach(drawGhost);
-    if(P.y>480){ ctx.fillStyle='#fff'; ctx.font='bold 14px Fredoka'; ctx.fillText('Aperte E para voltar à rua',380,500); } }
+function render() {
+  ctx.clearRect(0, 0, W, H);
+  var j;
+  if (mode === 'street') {
+    drawBackgroundStreet();
+    var lx;
+    for (lx = 200; lx < 2400; lx += 420) { var sxx = lx - camX; if (sxx > -60 && sxx < W + 60) drawLamp(sxx); }
+    for (j = 0; j < houses.length; j++) drawHouse(houses[j]);
+    for (j = 0; j < streetCandies.length; j++) if (!streetCandies[j].taken) drawCandy(streetCandies[j].x - camX, streetCandies[j].y, false);
+    for (j = 0; j < streetGhosts.length; j++) { var gxx = streetGhosts[j].x - camX; if (gxx > -50 && gxx < W + 50) drawGhost(streetGhosts[j], gxx); }
+    drawHarumi(P.x - camX, P.y);
+    for (j = 0; j < houses.length; j++) {
+      if (Math.abs(P.x - (houses[j].x + 90)) < 95) {
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 15px Fredoka, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('Aperte E para entrar 🏠', houses[j].x - camX + 90, 492); ctx.textAlign = 'left';
+      }
+    }
+  } else {
+    drawInterior();
+    drawHarumi(P.x, P.y);
+    for (j = 0; j < inGhosts.length; j++) drawGhost(inGhosts[j]);
+    if (P.y > 470) {
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Fredoka, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('Aperte E para voltar à rua', 480, 505); ctx.textAlign = 'left';
+    }
+  }
   drawParts();
-  // vinheta
-  const v=ctx.createRadialGradient(W/2,H/2,260,W/2,H/2,650); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.45)');
-  ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
+  var v = ctx.createRadialGradient(W / 2, H / 2, 260, W / 2, H / 2, 660);
+  v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.45)');
+  ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
 }
 
-// ============ TELAS ============
-const ov=document.getElementById('overlay'), ovCard=document.getElementById('ovCard');
-function showMenu(){
-  state='menu'; ov.classList.remove('hidden');
-  ovCard.innerHTML=`<div class="title">🎃 HARUMI 2D 👻<br><span style="font-size:20px">Caça-Doces na Casa Assombrada</span></div>
-  <p class="sub">Você é <b>HARUMI ★</b> — cabelo azul-marinho, olhos rosados, fantasia caveira 💀 (a mais brilhante do jogo!)<br>
-  Explore a <b>rua Halloween</b>, entre nas <b>3 casas</b> (E) e ache os <b>18 doces 🍬 dentro das casas</b>. Fuja dos <b>fantasmas</b>!</p>
-  <div style="display:flex;justify-content:center"><canvas id="pv" width="180" height="180" class="prev" style="width:130px;height:130px"></canvas></div>
-  <div><button class="big" id="bStart">▶ COMEÇAR NA RUA 🎃</button>
-  <button class="big blue" id="bCust">🎨 CUSTOMIZAR HARUMI</button></div>
-  <p class="sub"><kbd>WASD</kbd> mover • <kbd>E</kbd> entrar/sair • <kbd>Shift</kbd> correr • <kbd>Esc</kbd> pausa<br>🍬 = moeda • Banco: <b>${save.bank}</b> • Recorde: <b>${save.best} doces</b></p>`;
-  drawPreview(document.getElementById('pv'));
-  document.getElementById('bStart').onclick=startStreet;
-  document.getElementById('bCust').onclick=showCustom;
+/* ================= TELAS ================= */
+var ov = $('overlay'), ovCard = $('ovCard');
+function hideOv() { ov.classList.add('hidden'); }
+function showOv() { ov.classList.remove('hidden'); }
+function optHTML(kind, list, cur) {
+  var h = '', j;
+  for (j = 0; j < list.length; j++) {
+    h += '<div class="opt' + (cur === list[j][0] ? ' sel' : '') + '" data-k="' + kind + '" data-v="' + list[j][0] + '"><b>' + list[j][1] + '</b><small>' + list[j][2] + '</small></div>';
+  }
+  return h;
 }
-function drawPreview(c2){
-  if(!c2) return; const x2=c2.getContext('2d'); x2.clearRect(0,0,180,180);
-  x2.fillStyle='#140f3a'; x2.fillRect(0,0,180,180);
-  const keep={ctx}; // desenha simplificado
-  x2.save(); x2.translate(90,120); x2.scale(1.6,1.6);
-  const glowC = custom.glow==='azul'?'#38e1ff':custom.glow==='dourado'?'#ffe45e':'#ff4fc3';
-  x2.shadowColor=glowC; x2.shadowBlur=18;
-  x2.fillStyle='#1c1033'; x2.fillRect(-14,-2,11,28); x2.fillRect(3,-2,11,28);
-  const dc = custom.dress==='rosa'?'#ff8fd6':custom.dress==='azul'?'#38bdf8':'#f8fafc';
-  x2.fillStyle=dc; x2.beginPath(); x2.moveTo(-10,-2); x2.lineTo(10,-2); x2.lineTo(20,22); x2.lineTo(-20,22); x2.closePath(); x2.fill();
-  x2.fillStyle='#fff'; x2.beginPath(); x2.arc(0,8,9,0,7); x2.fill();
-  x2.fillStyle='#111'; x2.beginPath(); x2.arc(-3.5,7,2.4,0,7); x2.arc(3.5,7,2.4,0,7); x2.fill();
-  x2.fillStyle='#ffe0c4'; x2.beginPath(); x2.arc(0,-30,17,0,7); x2.fill();
-  x2.fillStyle='#16265e';
-  if(custom.hair==='coques'){ x2.beginPath(); x2.arc(-16,-46,9,0,7); x2.arc(16,-46,9,0,7); x2.fill(); x2.fillRect(-18,-46,36,22); }
-  else if(custom.hair==='curto'){ x2.fillRect(-19,-52,38,20); } else { x2.fillRect(-20,-52,40,22); x2.fillRect(-22,-34,10,34); x2.fillRect(12,-34,10,34); }
-  x2.fillStyle='#ff7ac8'; x2.beginPath(); x2.arc(-6.5,-28,4.6,0,7); x2.arc(6.5,-28,4.6,0,7); x2.fill();
-  x2.font='15px serif'; x2.fillText(custom.tiara==='abobora'?'🎃':custom.tiara==='bruxa'?'🧙':'💀',-8,-46);
+function showMenu() {
+  state = 'menu'; paused = false; customOpen = false; showOv();
+  ovCard.innerHTML =
+    '<div class="title">🎃 HARUMI 2D 👻<br><span style="font-size:19px">Caça-Doces DENTRO das Casas Assombradas</span></div>' +
+    '<p class="sub">Você é <b>HARUMI ★</b> — cabelo azul-marinho, olhos rosados, fantasia caveira 💀<br>' +
+    'Ela é a <b>maior e mais brilhante</b> do jogo ✦<br>' +
+    'Entre nas <b>3 casas</b> da rua (tecla <kbd>E</kbd>) e ache os <b>18 doces 🍬 LÁ DENTRO</b>. Fuja dos <b>fantasmas</b>! Doces da rua = só moeda 💰.</p>' +
+    '<div><button class="big" id="bStart">▶ COMEÇAR 🎃</button> ' +
+    '<button class="big blue" id="bCust">🎨 CUSTOMIZAR</button></div>' +
+    '<p class="sub"><kbd>WASD / setas</kbd> mover • <kbd>E</kbd> entrar/sair • <kbd>Shift</kbd> correr • <kbd>Esc</kbd> pausa<br>' +
+    '💰 Banco: <b>' + save.bank + '</b> • Recorde: <b>' + save.best + '</b>/18</p>';
+  $('bStart').onclick = startGame;
+  $('bCust').onclick = function() { openCustom(false); };
+}
+function openCustom(fromPlay) {
+  customOpen = true;
+  if (fromPlay) paused = true;
+  showOv();
+  ovCard.innerHTML =
+    '<div class="title" style="font-size:28px">🎨 CUSTOMIZAR HARUMI ★</div>' +
+    '<p class="sub">Azul + rosa 💙💖 — a estrela do jogo!</p>' +
+    '<div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">' +
+    '<div><canvas id="pv2" width="200" height="200" style="background:#140f3a;border-radius:12px;border:2px solid #fff"></canvas><p class="sub">prévia ao vivo</p></div>' +
+    '<div style="flex:1;min-width:280px;text-align:left">' +
+    '<b>💇 Cabelo:</b><div class="grid">' + optHTML('hair', [['longo','Longo Y2K','clássico'],['coques','Coques','fofo'],['curto','Curto','moderno']], custom.hair) + '</div>' +
+    '<b>👑 Tiara:</b><div class="grid">' + optHTML('tiara', [['caveira','💀 Caveira','original'],['abobora','🎃 Abóbora','hallow'],['bruxa','🧙 Bruxa','magia']], custom.tiara) + '</div>' +
+    '<b>👗 Vestido:</b><div class="grid">' + optHTML('dress', [['branco','🤍 Branco','caveira'],['rosa','🩷 Rosa','💖'],['azul','💙 Azul','💙']], custom.dress) + '</div>' +
+    '<b>✨ Brilho:</b><div class="grid">' + optHTML('glow', [['rosa','🩷 Rosa','padrão'],['azul','💙 Azul','frio'],['dourado','💛 Ouro','estrela']], custom.glow) + '</div>' +
+    '</div></div>' +
+    '<button class="big" id="bSave">💾 SALVAR</button>';
+  drawPreview();
+  var opts = ovCard.querySelectorAll('.opt'), n;
+  for (n = 0; n < opts.length; n++) (function(o) {
+    o.onclick = function() { custom[o.getAttribute('data-k')] = o.getAttribute('data-v'); persist(); openCustom(fromPlay); };
+  })(opts[n]);
+  $('bSave').onclick = function() {
+    persist(); beep(880, 0.15); customOpen = false;
+    if (fromPlay && state === 'play') { paused = false; hideOv(); }
+    else showMenu();
+  };
+}
+function drawPreview() {
+  var c2 = $('pv2'); if (!c2) return;
+  var x2 = c2.getContext('2d');
+  x2.clearRect(0, 0, 200, 200);
+  x2.fillStyle = '#140f3a'; x2.fillRect(0, 0, 200, 200);
+  x2.save(); x2.translate(100, 130); x2.scale(1.7, 1.7);
+  var gc = glowColor();
+  x2.shadowColor = gc; x2.shadowBlur = 18;
+  x2.fillStyle = '#1c1033'; x2.fillRect(-14, 0, 11, 28); x2.fillRect(3, 0, 11, 28);
+  x2.fillStyle = dressColor();
+  x2.beginPath(); x2.moveTo(-10, 0); x2.lineTo(10, 0); x2.lineTo(20, 24); x2.lineTo(-20, 24); x2.closePath(); x2.fill();
+  x2.shadowBlur = 0;
+  x2.fillStyle = '#fff'; x2.beginPath(); x2.arc(0, 10, 9, 0, Math.PI * 2); x2.fill();
+  x2.fillStyle = '#111'; x2.beginPath(); x2.arc(-3.5, 9, 2.4, 0, Math.PI * 2); x2.fill();
+  x2.beginPath(); x2.arc(3.5, 9, 2.4, 0, Math.PI * 2); x2.fill();
+  x2.fillStyle = '#ffe0c4'; x2.beginPath(); x2.arc(0, -30, 17, 0, Math.PI * 2); x2.fill();
+  x2.fillStyle = '#16265e';
+  if (custom.hair === 'coques') {
+    x2.beginPath(); x2.arc(-17, -46, 9, 0, Math.PI * 2); x2.fill();
+    x2.beginPath(); x2.arc(17, -46, 9, 0, Math.PI * 2); x2.fill();
+    x2.fillRect(-18, -48, 36, 22);
+  } else if (custom.hair === 'curto') { x2.fillRect(-19, -52, 38, 20); }
+  else { x2.fillRect(-20, -52, 40, 22); x2.fillRect(-22, -34, 10, 34); x2.fillRect(12, -34, 10, 34); }
+  x2.fillStyle = '#ff7ac8';
+  x2.beginPath(); x2.arc(-6.5, -28, 4.6, 0, Math.PI * 2); x2.fill();
+  x2.beginPath(); x2.arc(6.5, -28, 4.6, 0, Math.PI * 2); x2.fill();
+  x2.font = '15px serif'; x2.fillText(custom.tiara === 'abobora' ? '🎃' : custom.tiara === 'bruxa' ? '🧙' : '💀', -8, -44);
+  x2.fillStyle = '#fff'; x2.font = 'bold 12px sans-serif'; x2.textAlign = 'center';
+  x2.fillText('HARUMI ★', 0, -60);
   x2.restore();
 }
-function showCustom(fromPause){
-  state = fromPause?'play':'menu'; paused = !!fromPause ? true : false;
-  ov.classList.remove('hidden');
-  const opts=(t,arr,cur)=>arr.map(v=>`<div class="opt ${cur===v[0]?'sel':''}" data-k="${t}" data-v="${v[0]}"><b>${v[1]}</b><small>${v[2]}</small></div>`).join('');
-  ovCard.innerHTML=`<div class="title" style="font-size:28px">🎨 CUSTOMIZAR HARUMI ★</div>
-  <p class="sub">A Harumi é a estrela — deixe-a única! Cores do menu: azul + rosa 💙💖</p>
-  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-   <div><canvas id="pv2" width="180" height="180" class="prev" style="width:150px;height:150px"></canvas><p class="sub">prévia ★ brilhante</p></div>
-   <div style="flex:1;min-width:280px;text-align:left">
-    <b>💇 Cabelo azul-marinho — estilo:</b><div class="grid">${opts('hair',[['longo','Longo Y2K','clássico'],['coques','Coques','fofo 2000'],['curto','Curto','moderno']],custom.hair)}</div>
-    <b>👑 Tiara:</b><div class="grid">${opts('tiara',[['caveira','💀 Caveira','original'],['abobora','🎃 Abóbora','halloween'],['bruxa','🧙 Bruxa','mágica']],custom.tiara)}</div>
-    <b>👗 Vestido caveira:</b><div class="grid">${opts('dress',[['branco','🤍 Branco','caveira'],['rosa','🩷 Rosa','💖'],['azul','💙 Azul','💙']],custom.dress)}</div>
-    <b>✨ Brilho destaque:</b><div class="grid">${opts('glow',[['rosa','🩷 Rosa','padrão'],['azul','💙 Azul','frio'],['dourado','💛 Ouro','estrela']],custom.glow)}</div>
-   </div></div>
-  <button class="big" id="bSave">💾 SALVAR E ${fromPause?'VOLTAR':'JOGAR'}</button>
-  ${fromPause?'<button class="ghostb" id="bBack">voltar sem salvar</button>':''}`;
-  drawPreview(document.getElementById('pv2'));
-  ovCard.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{ custom[o.dataset.k]=o.dataset.v; showCustom(fromPause); });
-  document.getElementById('bSave').onclick=()=>{ persist(); beep(880,.15); if(fromPause){ov.classList.add('hidden');paused=false;} else startStreet(); };
-  const bb=document.getElementById('bBack'); if(bb) bb.onclick=()=>{ ov.classList.add('hidden'); paused=false; };
+function togglePause() {
+  if (state !== 'play' || customOpen) return;
+  if (!paused) {
+    paused = true; showOv();
+    ovCard.innerHTML =
+      '<div class="title" style="font-size:30px">⏸ PAUSA 💙💖</div>' +
+      '<p class="sub">Doces da meta: <b>' + P.got + '/' + TOTAL + '</b> • Vidas: <b>' + P.lives + '</b> • Banco: <b>' + save.bank + '</b></p>' +
+      '<div><button class="big" id="pGo">▶ CONTINUAR</button> ' +
+      '<button class="big blue" id="pCu">🎨 CUSTOMIZAR</button></div>' +
+      '<div><button class="ghostb" id="pRe">↻ REINICIAR</button> ' +
+      '<button class="ghostb" id="pMe">★ MENU</button> ' +
+      '<button class="ghostb" id="pMu">' + (muted ? '🔊 SOM' : '🔇 MUDO') + '</button></div>' +
+      '<p class="sub"><kbd>Esc</kbd> continuar</p>';
+    $('pGo').onclick = function() { paused = false; hideOv(); };
+    $('pCu').onclick = function() { openCustom(true); };
+    $('pRe').onclick = function() { paused = false; startGame(); };
+    $('pMe').onclick = function() { paused = false; showMenu(); };
+    $('pMu').onclick = function(e) { muted = !muted; e.target.textContent = muted ? '🔊 SOM' : '🔇 MUDO'; };
+  } else { paused = false; hideOv(); }
 }
-function togglePause(){
-  if(state!=='play') return;
-  if(ov.classList.contains('hidden')||!paused){ // pausar
-    paused=true; ov.classList.remove('hidden');
-    ovCard.innerHTML=`<div class="title" style="font-size:30px">⏸ PAUSA 💙💖</div>
-    <p class="sub">${mode==='street'?'Rua Halloween 🎃':'Dentro da casa 🏚️'} • Doces: <b>${P.got}/${TOTAL}</b> • Vidas: <b>${P.lives}</b></p>
-    <div class="pauseItem">
-     <button class="big" id="pGo">▶ CONTINUAR</button>
-     <button class="big blue" id="pCu">🎨 CUSTOMIZAR</button>
-    </div><div class="pauseItem">
-     <button class="ghostb" id="pRe">↻ REINICIAR</button>
-     <button class="ghostb" id="pMe">★ MENU</button>
-     <button class="ghostb" id="pMu">${muted?'🔊 SOM':'🔇 MUDO'}</button>
-    </div>
-    <p class="sub"><kbd>Esc</kbd> continuar • Harumi continua brilhando mesmo pausada ★</p>`;
-    document.getElementById('pGo').onclick=()=>{ov.classList.add('hidden');paused=false;};
-    document.getElementById('pCu').onclick=()=>showCustom(true);
-    document.getElementById('pRe').onclick=()=>{ov.classList.add('hidden');paused=false;startStreet();};
-    document.getElementById('pMe').onclick=()=>{paused=false;showMenu();};
-    document.getElementById('pMu').onclick=e=>{muted=!muted;e.target.textContent=muted?'🔊 SOM':'🔇 MUDO';};
-  } else if(paused && ovCard.querySelector('#pGo')){ ov.classList.add('hidden'); paused=false; }
+function startGame() {
+  resetRun(); state = 'play'; paused = false; customOpen = false; hideOv();
+  showTalk('🎃 Rua Halloween! Entre nas CASAS com E — os doces da meta estão LÁ DENTRO! 👻', 3000);
+  beep(520, 0.15);
 }
-document.getElementById('btnPause').onclick=togglePause;
-document.getElementById('btnCust').onclick=()=>showCustom(state==='play');
-function startStreet(){
-  P.lives=3;P.stamina=100;P.got=0;P.inv=0;parts=[];
-  buildStreet(); state='play'; paused=false; ov.classList.add('hidden');
-  talk('🎃 Rua Halloween 2000! Entre nas casas com E e ache doces DENTRO delas! 👻',2800);
+function winGame() {
+  state = 'win';
+  if (P.got > save.best) save.best = P.got;
+  persist(); beep(880, 0.3); setTimeout(function(){ beep(1170, 0.4); }, 220);
+  burst(mode === 'street' ? P.x - camX : P.x, P.y - 40, '#ffe45e', 40);
+  showOv();
+  ovCard.innerHTML =
+    '<div class="title">🎉 HARUMI VENCEU! 🍬</div>' +
+    '<p>Coletou <b>' + P.got + ' doces</b> dentro das casas!<br>Banco: <b>' + save.bank + ' 🍬</b> • Recorde: <b>' + save.best + '</b></p>' +
+    '<p class="sub">A estrela brilha em azul + rosa! 💙💖</p>' +
+    '<button class="big" id="wA">↻ JOGAR DE NOVO</button> ' +
+    '<button class="big blue" id="wM">★ MENU</button><br>' +
+    '<button class="ghostb" id="wC">🎨 CUSTOMIZAR HARUMI</button>';
+  $('wA').onclick = startGame;
+  $('wM').onclick = showMenu;
+  $('wC').onclick = function() { openCustom(false); };
 }
-function winGame(){
-  state='win'; save.best=Math.max(save.best,P.got); persist(); beep(880,.3); setTimeout(()=>beep(1100,.4),200);
-  burst(P.x,P.y,'#ffe45e',40);
-  ov.classList.remove('hidden');
-  ovCard.innerHTML=`<div class="title">🎉 HARUMI VENCEU! 🍬</div>
-  <p>Coletou <b>${P.got} doces</b> dentro das casas! Banco: <b>${save.bank} 🍬</b></p>
-  <p class="sub">Os fantasmas aplaudem a estrela ★ 💙💖</p>
-  <button class="big" id="wA">↻ JOGAR DE NOVO</button> <button class="big blue" id="wM">★ MENU</button><br>
-  <button class="ghostb" id="wC">🎨 CUSTOMIZAR HARUMI</button>`;
-  document.getElementById('wA').onclick=startStreet;
-  document.getElementById('wM').onclick=showMenu;
-  document.getElementById('wC').onclick=()=>showCustom(false);
+function deadGame() {
+  state = 'dead'; beep(140, 0.5, 'sawtooth');
+  showOv();
+  ovCard.innerHTML =
+    '<div class="title">👻 PEGO!</div>' +
+    '<p>Os fantasmas assustaram a Harumi!<br>Meta: <b>' + P.got + '/' + TOTAL + '</b> • Banco: <b>' + save.bank + '</b></p>' +
+    '<button class="big" id="dA">↻ TENTAR DE NOVO</button> <button class="big blue" id="dM">★ MENU</button>';
+  $('dA').onclick = startGame;
+  $('dM').onclick = showMenu;
 }
-function deadGame(){
-  state='dead'; beep(140,.5,'sawtooth');
-  ov.classList.remove('hidden');
-  ovCard.innerHTML=`<div class="title">👻 PEGO!</div><p>Os fantasmas assustaram a Harumi!<br>Doces: <b>${P.got}</b> • Banco: <b>${save.bank}</b></p>
-  <button class="big" id="dA">↻ TENTAR DE NOVO</button> <button class="big blue" id="dM">★ MENU</button>`;
-  document.getElementById('dA').onclick=startStreet;
-  document.getElementById('dM').onclick=showMenu;
-}
-// loop
-let last=performance.now();
-function loop(now){
+
+/* ================= LOOP ================= */
+var last = performance.now();
+function loop(now) {
   requestAnimationFrame(loop);
-  let dt=Math.min((now-last)/1000,0.05); last=now;
-  if(!paused){ update(dt); render(); }
+  var dt = (now - last) / 1000; last = now;
+  if (dt > 0.05) dt = 0.05; if (dt < 0) dt = 0;
+  update(dt);
+  if (state === 'menu' || state === 'win' || state === 'dead') time += dt;
+  render();
+  if (customOpen) drawPreview();
 }
-showMenu(); buildStreet(); state='menu'; render(); requestAnimationFrame(loop);
+resetRun();
+showMenu();
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
