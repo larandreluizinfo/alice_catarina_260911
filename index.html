@@ -3,537 +3,522 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Harumi: Caça-Doces Halloween 2000 👻🍬</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<title>Harumi 2D — Caça-Doces na Casa Assombrada 🎃</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Rubik+Bubbles&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap');
+  :root{ --azul:#38bdf8; --azul2:#1e3aff; --rosa:#ff4fc3; --rosa2:#ec4899; }
   *{box-sizing:border-box}
-  body{margin:0;background:#0b0620;color:#fff;font-family:Verdana,Comic Sans MS,system-ui,sans-serif;overflow:hidden}
-  #c{position:fixed;inset:0;display:block}
-  #vhs{position:fixed;inset:0;pointer-events:none;z-index:4;background:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 2px,transparent 2px 4px);mix-blend-mode:overlay}
-  #vhs::after{content:'▶ SP 2003 • OCT 31 • HARUMI CAM 📼';position:absolute;top:60px;left:12px;color:#fff;font-family:monospace;text-shadow:1px 1px 0 #ff4fc3,-1px 0 0 #38e1ff;font-size:13px;opacity:.85}
-  /* HUD azul + rosa */
-  #hud{position:fixed;top:0;left:0;right:0;display:flex;gap:8px;align-items:center;padding:8px 10px;flex-wrap:wrap;z-index:5;pointer-events:none;font-size:14px}
-  .pill{background:linear-gradient(180deg,#1e3aff 0%,#6d6bff 45%,#ff4fc3 100%);border:2px solid #fff;border-radius:999px;
-    padding:6px 14px;font-weight:bold;text-shadow:1px 1px 0 #1a0b2e;box-shadow:0 0 14px #38e1ff,0 0 14px #ff4fc3}
-  .pill b{color:#fff;background:#1a0b2e88;border-radius:8px;padding:0 8px}
-  .pill button{pointer-events:auto}
-  #face{width:56px;height:56px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 12px #38e1ff,0 0 12px #ff4fc3;position:relative;overflow:hidden;flex:none;background:#fff}
-  #pauseBtn{pointer-events:auto;cursor:pointer;background:#1a0b2e;color:#fff;border:2px solid #fff;border-radius:999px;padding:6px 14px;font-weight:900}
-  #prompt{position:fixed;left:50%;top:62%;transform:translateX(-50%);background:linear-gradient(90deg,#1e3aff,#ff4fc3);border:2px solid #fff;
-    padding:8px 18px;border-radius:14px;display:none;font-weight:800;z-index:6;box-shadow:0 0 18px #38e1ff}
-  #talk{position:fixed;left:50%;top:20%;transform:translateX(-50%);background:#fff;color:#1e2aff;border:3px solid #ff4fc3;
-    border-radius:14px;padding:8px 16px;display:none;z-index:6;font-weight:bold;max-width:82vw;text-align:center;box-shadow:0 0 16px #ff4fc3}
-  #dmg{position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,60,180,.6));display:none;pointer-events:none;z-index:6}
-  #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(8,4,30,.88);z-index:10;padding:14px;overflow:auto}
+  body{margin:0;background:#0b1030;color:#fff;font-family:'Fredoka',Verdana,sans-serif;overflow:hidden}
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 20%,#2b1a6e,#0b1030 70%)}
+  #game{border:4px solid #fff;border-radius:18px;box-shadow:0 0 25px var(--rosa),0 0 45px var(--azul);background:#000;max-width:96vw;max-height:86vh}
+  #hud{position:fixed;top:0;left:0;right:0;display:flex;gap:8px;align-items:center;padding:8px 10px;flex-wrap:wrap;z-index:5;pointer-events:none}
+  .pill{background:linear-gradient(180deg,var(--azul2),var(--rosa));border:2px solid #fff;border-radius:999px;padding:6px 14px;font-weight:700;text-shadow:1px 1px 0 #000;box-shadow:0 0 12px var(--azul)}
+  .pill b{background:#0008;border-radius:8px;padding:0 8px}
+  #hud button{pointer-events:auto;background:#fff;color:#d81b96;border:2px solid #fff;border-radius:999px;padding:6px 14px;font-weight:900;cursor:pointer}
+  #prompt{position:fixed;left:50%;top:72%;transform:translateX(-50%);background:linear-gradient(90deg,var(--azul2),var(--rosa));border:2px solid #fff;padding:8px 18px;border-radius:14px;display:none;font-weight:700;z-index:6}
+  #talk{position:fixed;left:50%;top:16%;transform:translateX(-50%);background:#fff;color:#1e2aff;border:3px solid var(--rosa);border-radius:14px;padding:8px 16px;display:none;z-index:6;font-weight:700;max-width:84vw;text-align:center}
+  #flash{position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,60,180,.6));display:none;pointer-events:none;z-index:6}
+  #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(8,6,34,.9);z-index:10;padding:14px;overflow:auto}
   #overlay.hidden{display:none}
-  .card{max-width:720px;width:100%;background:linear-gradient(160deg,#1e3aff 0%,#4b2bff 30%,#ff4fc3 100%);border:4px solid #fff;border-radius:22px;
-    padding:22px;text-align:center;box-shadow:0 0 30px #38e1ff,0 0 60px #ff4fc3}
-  .inner{background:#14082ecc;border-radius:16px;padding:16px;border:2px dashed #8be9ff}
-  .y2k-title{font-family:'Rubik Bubbles',cursive;font-size:36px;color:#fff;text-shadow:2px 2px 0 #1e3aff,-2px -2px 0 #ff4fc3,0 0 20px #8be9ff;margin:6px 0}
-  .sub{color:#ffd7f2;font-size:13px}
-  .chars{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0}
-  .char{width:150px;background:#0e0b33;border:3px solid #38e1ff;border-radius:14px;padding:10px;cursor:pointer}
-  .char.sel{border-color:#ff4fc3;box-shadow:0 0 16px #ff4fc3;transform:scale(1.04)}
-  .char.locked{opacity:.55;filter:grayscale(1);cursor:not-allowed}
-  .char .doll{width:74px;height:74px;margin:0 auto;border-radius:12px;position:relative;overflow:hidden;border:2px solid #fff}
-  button{background:linear-gradient(180deg,#8be9ff,#1e3aff);border:3px solid #fff;color:#fff;font-weight:900;padding:12px 20px;border-radius:14px;cursor:pointer;font-size:15px;margin:6px;text-shadow:1px 1px 0 #000}
-  button.pink{background:linear-gradient(180deg,#ffb3e6,#ff4fc3)}
-  button:disabled{opacity:.4}
-  .tabs{display:flex;gap:8px;justify-content:center;margin:8px 0;flex-wrap:wrap}
-  .tabs button{font-size:13px;padding:8px 14px}
-  .closet{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
-  .closet .opt{background:#0e0b33;border:2px solid #38e1ff;border-radius:12px;padding:8px;font-size:12px}
-  .sw{width:30px;height:30px;border-radius:50%;border:2px solid #fff;display:inline-block;margin:4px;cursor:pointer}
-  .sw.sel{outline:3px solid #ffe45e}
-  kbd{background:#000;border:1px solid #8be9ff;border-radius:6px;padding:1px 7px;font-size:12px;color:#8be9ff}
-  #touch{position:fixed;bottom:14px;left:0;right:0;display:none;justify-content:space-between;padding:0 14px;z-index:7}
+  .card{max-width:740px;width:100%;background:linear-gradient(160deg,#1e3aff 0%,#7c3aed 40%,#ff4fc3 100%);border:4px solid #fff;border-radius:22px;padding:22px;text-align:center;box-shadow:0 0 30px var(--rosa)}
+  .title{font-size:36px;margin:4px 0;text-shadow:2px 2px 0 #1e3aff,-2px 2px 0 var(--rosa);letter-spacing:1px}
+  .sub{font-size:14px;color:#ffe4f5}
+  button.big{background:linear-gradient(180deg,#fff,#ffd1f2);border:3px solid #fff;color:#a3107a;font-weight:900;padding:12px 22px;border-radius:14px;cursor:pointer;font-size:16px;margin:6px;box-shadow:0 4px 0 #a3107a}
+  button.blue{background:linear-gradient(180deg,#bae6fd,#38bdf8);color:#062a4e;box-shadow:0 4px 0 #062a4e}
+  button.ghostb{background:transparent;border:2px solid #fff;color:#fff;padding:10px 16px;border-radius:12px;cursor:pointer;font-weight:700}
+  .grid{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+  .opt{background:#0009;border:2px solid #fff;border-radius:12px;padding:10px;min-width:130px;cursor:pointer}
+  .opt.sel{outline:4px solid #ffe45e;box-shadow:0 0 14px #ffe45e}
+  .opt small{display:block;color:#ffd1f2}
+  canvas.prev{width:90px;height:90px;background:#140f3a;border-radius:10px}
+  #touch{position:fixed;bottom:14px;left:0;right:0;display:none;justify-content:space-between;padding:0 16px;z-index:7}
   @media (pointer:coarse){#touch{display:flex}}
-  .blink{animation:bl 1s infinite}@keyframes bl{50%{opacity:.25}}
-  #loc{position:fixed;bottom:34px;left:10px;z-index:5;font-size:12px;background:#1a0b2ecc;border:2px solid #ff4fc3;border-radius:10px;padding:4px 10px}
+  #touch button{font-size:20px;padding:10px 16px;border-radius:14px;border:2px solid #fff;background:#ffffffcc}
+  kbd{background:#000;border:1px solid #fff;border-radius:6px;padding:1px 7px;font-size:12px}
+  .pauseItem{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
-<div id="vhs"></div>
+<div id="wrap"><canvas id="game" width="960" height="600"></canvas></div>
 <div id="hud">
-  <div id="face"></div>
-  <div class="pill">🎃 Fase <b id="hFase">1</b></div>
-  <div class="pill">📍 <b id="hLoc">Rua</b></div>
-  <div class="pill">🍬 <b id="hCandy">0/12</b></div>
+  <div class="pill">👧 <b>HARUMI ★</b></div>
+  <div class="pill">📍 <b id="hWhere">Rua</b></div>
+  <div class="pill">🍬 <b id="hCandy">0/18</b></div>
   <div class="pill">💰 <b id="hBank">0</b></div>
   <div class="pill">❤️ <b id="hLives">3</b></div>
-  <div class="pill">👧 <b id="hChar">Harumi</b></div>
-  <button id="pauseBtn">⏸ Pausar (P)</button>
+  <div class="pill">⚡ <b id="hSt">100</b></div>
+  <button id="btnPause">⏸ PAUSA</button>
+  <button id="btnCust">🎨 HARUMI</button>
 </div>
 <div id="prompt"></div>
 <div id="talk"></div>
-<div id="dmg"></div>
-<div id="loc">WASD mover • E entrar/sair • P pausa</div>
-<div id="overlay"><div class="card"><div class="inner" id="ovCard"></div></div></div>
-<div id="touch"><div><button id="tSprint">⚡ correr</button></div><div><button id="tUse">E entrar</button></div></div>
+<div id="flash"></div>
+<div id="overlay"><div class="card" id="ovCard"></div></div>
+<div id="touch"><div>
+  <button data-k="a">◀</button><button data-k="w">▲</button><button data-k="s">▼</button><button data-k="d">▶</button>
+</div><div><button id="tE">E</button><button id="tP">⏸</button></div></div>
+
 <script>
-// ============ SAVE / CHARS / CUSTOM ============
-const CHARS=[
- {id:'harumi',nome:'Harumi',desc:'Caveirinha ★',hair:'#16265e',eye:'#ff7ac8',dress:'#f8fafc',locked:false,lives:3,speed:1.0},
- {id:'yuki',nome:'Yuki Bruxa',desc:'+15% vel.',hair:'#6d28d9',eye:'#22d3ee',dress:'#7c3aed',locked:true,lives:3,speed:1.15,need:'Vença Fase 1'},
- {id:'ren',nome:'Ren Vampiro',desc:'+1 vida',hair:'#151515',eye:'#ff2222',dress:'#dc2626',locked:true,lives:4,speed:1.0,need:'Vença Fase 2'},
- {id:'sora',nome:'Sora Abóbora',desc:'ímã doces',hair:'#ff8c00',eye:'#65a30d',dress:'#ff8c00',locked:true,lives:3,speed:1.05,need:'40 🍬 banco'},
-];
-let save={bank:0,unlocked:['harumi'],items:[],custom:{hair:'#16265e',dress:'#f8fafc',acc:'caveira'}};
-try{const s=JSON.parse(localStorage.getItem('harumi_h2k_v2')||'null');if(s)save=Object.assign(save,s);}catch(e){}
-function persist(){localStorage.setItem('harumi_h2k_v2',JSON.stringify(save));}
-let selChar='harumi';
-function charDef(){return CHARS.find(c=>c.id===selChar);}
+// ============ SAVE / CUSTOM ============
+let save = {bank:0, best:0, unlocked:['harumi']};
+try{ Object.assign(save, JSON.parse(localStorage.getItem('harumi2d')||'{}')); }catch(e){}
+let custom = {hair:'longo', tiara:'caveira', dress:'branco', glow:'rosa'};
+try{ Object.assign(custom, JSON.parse(localStorage.getItem('harumiCustom')||'{}')); }catch(e){}
+function persist(){ localStorage.setItem('harumi2d', JSON.stringify(save)); localStorage.setItem('harumiCustom', JSON.stringify(custom)); }
 
-// ============ RENDERER MELHORADO ============
-const canvas=document.getElementById('c');
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(innerWidth,innerHeight);
-renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-renderer.outputEncoding=THREE.sRGBEncoding;
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x12082e);
-scene.fog=new THREE.Fog(0x12082e,18,120);
-const camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,0.1,400);
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
-scene.add(new THREE.HemisphereLight(0x8be9ff,0x3a0a5e,0.65));
-scene.add(new THREE.AmbientLight(0x6655ff,0.35));
-const moonLight=new THREE.DirectionalLight(0xcfd8ff,0.7);
-moonLight.position.set(60,50,10); moonLight.castShadow=true;
-moonLight.shadow.mapSize.set(1024,1024);
-moonLight.shadow.camera.left=-70;moonLight.shadow.camera.right=70;moonLight.shadow.camera.top=70;moonLight.shadow.camera.bottom=-70;
-scene.add(moonLight);
-const playerLight=new THREE.PointLight(0xff8de0,0.9,20); scene.add(playerLight);
-
-// texturas procedurais
-function tex(fn){const cv=document.createElement('canvas');cv.width=cv.height=128;fn(cv.getContext('2d'));const t=new THREE.CanvasTexture(cv);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;}
-const grassTex=tex(c=>{c.fillStyle='#1d2b1a';c.fillRect(0,0,128,128);for(let i=0;i<400;i++){c.fillStyle=['#24401f','#16240f','#2e5a26'][i%3];c.fillRect(Math.random()*128,Math.random()*128,3,3);}});
-const roadTex=tex(c=>{c.fillStyle='#23232f';c.fillRect(0,0,128,128);for(let i=0;i<200;i++){c.fillStyle='#2e2e3d';c.fillRect(Math.random()*128,Math.random()*128,2,2);}});
-const woodTex=tex(c=>{c.fillStyle='#5a3418';c.fillRect(0,0,128,128);c.fillStyle='#6e421f';for(let y=0;y<128;y+=16)c.fillRect(0,y,128,4);});
-const wallTex=tex(c=>{c.fillStyle='#3d1f5e';c.fillRect(0,0,128,128);c.fillStyle='#ff9d00';c.globalAlpha=.25;for(let x=10;x<128;x+=30)for(let y=10;y<128;y+=30){c.beginPath();c.arc(x,y,3,0,7);c.fill();}c.globalAlpha=1;});
-[grassTex,roadTex,woodTex,wallTex].forEach(t=>t.repeat.set(8,8));
-
-// ============ ESTADO ============
-const P={x:10,z:30,yaw:-Math.PI/2,pitch:-0.15,stamina:100,lives:3,got:0,inv:0};
-let state='menu',level=1,meta=12,loc='Rua';
-const keys={};let sprintTouch=false;
-const solids=[],candies=[],ghosts=[],doors=[],decors=[];
-let girlMesh=null,levelGroup=new THREE.Group();scene.add(levelGroup);
-
-function addSolid(x,z,w,d,h,mat){
-  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat||new THREE.MeshStandardMaterial({color:0x4a2a7a}));
-  m.position.set(x,h/2,z);m.castShadow=true;m.receiveShadow=true;levelGroup.add(m);
-  solids.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});return m;
-}
-function collide(nx,nz){
-  const r=0.55;
-  if(nx<2||nz<2||nx>218||nz>68)return true;
-  for(const s of solids){if(nx+r>s.x0&&nx-r<s.x1&&nz+r>s.z0&&nz-r<s.z1)return true;}
-  return false;
-}
-
-// ============ MODELS MELHORADOS ============
-function makeGirl(){
-  const def=charDef(),g=new THREE.Group();
-  const hairC=new THREE.Color(save.custom.hair||def.hair);
-  const dressC=new THREE.Color(save.custom.dress||def.dress);
-  const skin=new THREE.MeshStandardMaterial({color:0xffe0c4,roughness:.6});
-  const hairM=new THREE.MeshStandardMaterial({color:hairC,roughness:.45});
-  const dressM=new THREE.MeshStandardMaterial({color:dressC,roughness:.6});
-  const legM=new THREE.MeshStandardMaterial({color:0x241031});
-  [-0.16,0.16].forEach(x=>{const l=new THREE.Mesh(new THREE.CapsuleGeometry?new THREE.CylinderGeometry(0.11,0.11,0.6,8):new THREE.BoxGeometry(0.2,0.6,0.2),legM);l.position.set(x,0.35,0);l.castShadow=true;g.add(l);
-    const sh=new THREE.Mesh(new THREE.BoxGeometry(0.24,0.14,0.34),new THREE.MeshStandardMaterial({color:0xff4fc3}));sh.position.set(x,0.07,0.05);g.add(sh);});
-  const dress=new THREE.Mesh(new THREE.CylinderGeometry(0.36,0.62,0.95,14),dressM);dress.position.y=1.08;dress.castShadow=true;g.add(dress);
-  const skull=new THREE.Mesh(new THREE.SphereGeometry(0.19,12,10),new THREE.MeshStandardMaterial({color:0xffffff}));skull.position.set(0,1.18,0.44);g.add(skull);
-  [-0.06,0.06].forEach(x=>{const e=new THREE.Mesh(new THREE.SphereGeometry(0.04,8,8),new THREE.MeshBasicMaterial({color:0x111111}));e.position.set(x,1.22,0.6);g.add(e);});
-  [-0.5,0.5].forEach(x=>{const a=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,0.6,8),skin);a.position.set(x,1.25,0);a.castShadow=true;g.add(a);});
-  const head=new THREE.Mesh(new THREE.SphereGeometry(0.34,18,14),skin);head.position.y=1.95;head.castShadow=true;g.add(head);
-  const hair=new THREE.Mesh(new THREE.SphereGeometry(0.42,16,12),hairM);hair.position.y=2.12;hair.scale.set(1.05,0.85,1.05);hair.castShadow=true;g.add(hair);
-  [-0.44,0.44].forEach(x=>{const p=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.95,0.26),hairM);p.position.set(x,1.72,0);p.castShadow=true;g.add(p);});
-  const fr=new THREE.Mesh(new THREE.BoxGeometry(0.66,0.2,0.12),hairM);fr.position.set(0,2.1,0.3);g.add(fr);
-  [-0.13,0.13].forEach(x=>{const e=new THREE.Mesh(new THREE.SphereGeometry(0.08,10,10),new THREE.MeshBasicMaterial({color:new THREE.Color(def.eye)}));e.position.set(x,1.96,0.29);g.add(e);
-    const w=new THREE.Mesh(new THREE.SphereGeometry(0.028,6,6),new THREE.MeshBasicMaterial({color:0xffffff}));w.position.set(x+0.02,1.99,0.355);g.add(w);});
-  // acessório custom
-  const acc=save.custom.acc||'caveira';
-  if(acc==='caveira'){const ti=new THREE.Mesh(new THREE.TorusGeometry(0.32,0.05,8,18,Math.PI),new THREE.MeshStandardMaterial({color:0xffffff}));ti.position.y=2.34;g.add(ti);
-    const mini=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),new THREE.MeshStandardMaterial({color:0xffffff}));mini.position.set(0,2.5,0.1);g.add(mini);}
-  if(acc==='laco'){[-0.2,0.2].forEach(x=>{const b=new THREE.Mesh(new THREE.ConeGeometry(0.16,0.3,4),new THREE.MeshStandardMaterial({color:0xff4fc3}));b.position.set(x,2.5,0);b.rotation.z=x>0?-0.6:0.6;g.add(b);});}
-  if(acc==='chapeu'){const br=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.4,0.06,14),new THREE.MeshStandardMaterial({color:0x1a1a2e}));br.position.y=2.36;g.add(br);
-    const co=new THREE.Mesh(new THREE.ConeGeometry(0.26,0.5,12),new THREE.MeshStandardMaterial({color:0x1a1a2e}));co.position.y=2.6;g.add(co);}
-  scene.add(g);return g;
-}
-function makeGhost(){
-  const g=new THREE.Group();
-  const mat=new THREE.MeshStandardMaterial({color:0xf4f6ff,transparent:true,opacity:.88,roughness:.3,emissive:0x8be9ff,emissiveIntensity:.25});
-  const body=new THREE.Mesh(new THREE.SphereGeometry(0.55,14,12),mat);body.position.y=1.6;body.castShadow=true;g.add(body);
-  const skirt=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.42,1.1,14),mat);skirt.position.y=0.8;g.add(skirt);
-  [-0.18,0.18].forEach(x=>{const e=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),new THREE.MeshBasicMaterial({color:0x1a0b2e}));e.position.set(x,1.65,0.48);g.add(e);
-    const gl=new THREE.Mesh(new THREE.SphereGeometry(0.035,6,6),new THREE.MeshBasicMaterial({color:0xff4fc3}));gl.position.set(x,1.67,0.55);g.add(gl);});
-  const mo=new THREE.Mesh(new THREE.SphereGeometry(0.12,8,8),new THREE.MeshBasicMaterial({color:0x1a0b2e}));mo.position.set(0,1.35,0.5);mo.scale.y=1.5;g.add(mo);
-  const l=new THREE.PointLight(0x8be9ff,0.7,9);l.position.y=1.8;g.add(l);
-  // balão
-  const cv=document.createElement('canvas');cv.width=256;cv.height=96;const tg=new THREE.CanvasTexture(cv);
-  const bal=new THREE.Sprite(new THREE.SpriteMaterial({map:tg,depthTest:false}));bal.scale.set(2.6,1,1);bal.position.y=2.9;g.add(bal);
-  g.userData={cv,tg,bal};
-  levelGroup.add(g);return g;
-}
-function setBubble(g,txt){
-  const{cv,tg}=g.userData;const ctx=cv.getContext('2d');
-  ctx.clearRect(0,0,256,96);ctx.fillStyle='#fff';ctx.strokeStyle='#ff4fc3';ctx.lineWidth=6;
-  ctx.beginPath();ctx.rect(6,6,244,66);ctx.fill();ctx.stroke();
-  ctx.fillStyle='#1e3aff';ctx.font='bold 19px Verdana';ctx.textAlign='center';ctx.fillText(txt.slice(0,20),128,34);ctx.fillText(txt.slice(20,40),128,58);
-  tg.needsUpdate=true;
-}
-const GHOST_TALK=['BUUU! 👻','Doces ou susto!','Não fuja!','Woooo!','Te peguei!'];
-
-// ============ CENÁRIO ============
-function pumpkin(x,z,s){
-  const g=new THREE.Group();
-  const b=new THREE.Mesh(new THREE.SphereGeometry(0.6*s,14,12),new THREE.MeshStandardMaterial({color:0xff7b00,emissive:0xcc4400,emissiveIntensity:.7,roughness:.5}));
-  b.position.y=0.6*s;b.scale.y=0.85;b.castShadow=true;g.add(b);
-  const stem=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,0.3,8),new THREE.MeshStandardMaterial({color:0x2e5a26}));stem.position.y=1.05*s;g.add(stem);
-  [-0.15,0.15].forEach(px=>{const e=new THREE.Mesh(new THREE.PlaneGeometry(0.14,0.18),new THREE.MeshBasicMaterial({color:0xfff36b,side:THREE.DoubleSide}));e.position.set(px,0.7*s,0.55*s);g.add(e);});
-  const mo=new THREE.Mesh(new THREE.PlaneGeometry(0.32,0.1),new THREE.MeshBasicMaterial({color:0xfff36b,side:THREE.DoubleSide}));mo.position.set(0,0.42*s,0.56*s);g.add(mo);
-  g.position.set(x,0,z);levelGroup.add(g);decors.push(g);
-}
-function lampPost(x,z){
-  const p=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.18,5.4,10),new THREE.MeshStandardMaterial({color:0x141428,roughness:.5,metalness:.6}));
-  p.position.set(x,2.7,z);p.castShadow=true;levelGroup.add(p);
-  const orb=new THREE.Mesh(new THREE.SphereGeometry(0.42,12,10),new THREE.MeshBasicMaterial({color:0xffc94d}));orb.position.set(x,5.6,z);levelGroup.add(orb);
-  const halo=new THREE.Mesh(new THREE.SphereGeometry(0.7,12,10),new THREE.MeshBasicMaterial({color:0xffc94d,transparent:true,opacity:.25}));halo.position.set(x,5.6,z);levelGroup.add(halo);
-  const l=new THREE.PointLight(0xff9d00,1.0,22);l.position.set(x,5.4,z);levelGroup.add(l);
-}
-function houseShell(cx,cz,w,d,roofColor){
-  const wallM=new THREE.MeshStandardMaterial({map:wallTex,color:0xffffff,roughness:.8});
-  // 4 paredes com telhado, SEM porta (porta é teleporte)
-  addSolid(cx,cz-d/2,w,0.7,4.2,wallM);
-  addSolid(cx,cz+d/2,w,0.7,4.2,wallM);
-  addSolid(cx-w/2,cz,0.7,d,4.2,wallM);
-  addSolid(cx+w/2,cz,0.7,d,4.2,wallM);
-  const roof=new THREE.Mesh(new THREE.ConeGeometry(Math.max(w,d)*0.78,2.8,4),new THREE.MeshStandardMaterial({color:roofColor,roughness:.6}));
-  roof.position.set(cx,5.6,cz);roof.rotation.y=Math.PI/4;roof.castShadow=true;levelGroup.add(roof);
-  for(let i=-1;i<=1;i++){const win=new THREE.Mesh(new THREE.PlaneGeometry(1,1.2),new THREE.MeshBasicMaterial({color:0xffe97a}));win.position.set(cx+i*2.2,2.5,cz-d/2-0.38);win.rotation.y=Math.PI;levelGroup.add(win);}
-  // placa porta
-  const door=new THREE.Mesh(new THREE.PlaneGeometry(1.8,2.8),new THREE.MeshStandardMaterial({color:0x22ff88,emissive:0x064e2b,emissiveIntensity:.7}));
-  door.position.set(cx,1.4,cz-d/2-0.4);door.rotation.y=Math.PI;levelGroup.add(door);decors.push(door);
-}
-function furniture(x,z,ix){
-  // interior de casa: cama, mesa, armário, tapete
-  const wood=new THREE.MeshStandardMaterial({map:woodTex,color:0xffffff});
-  const bed=new THREE.Mesh(new THREE.BoxGeometry(2.4,0.6,1.6),new THREE.MeshStandardMaterial({color:0xff4fc3}));bed.position.set(x-3,0.3,z-2+ix);bed.castShadow=true;levelGroup.add(bed);
-  const table=new THREE.Mesh(new THREE.CylinderGeometry(0.9,0.9,0.7,12),wood);table.position.set(x+3,0.35,z+2);table.castShadow=true;levelGroup.add(table);
-  const ward=new THREE.Mesh(new THREE.BoxGeometry(1.4,2.6,1),new THREE.MeshStandardMaterial({color:0x4b2b8f}));ward.position.set(x+5,1.3,z-3);ward.castShadow=true;levelGroup.add(ward);
-  solids.push({x0:x-3-1.2,x1:x-3+1.2,z0:z-2+ix-0.8,z1:z-2+ix+0.8});
-  solids.push({x0:x+3-0.9,x1:x+3+0.9,z0:z+2-0.9,z1:z+2+0.9});
-  solids.push({x0:x+5-0.7,x1:x+5+0.7,z0:z-3-0.5,z1:z-3+0.5});
-  const rug=new THREE.Mesh(new THREE.CircleGeometry(1.6,20),new THREE.MeshStandardMaterial({color:0x1e3aff}));rug.rotation.x=-Math.PI/2;rug.position.set(x,0.02,z);levelGroup.add(rug);
-  // vela
-  const c=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,0.5,8),new THREE.MeshStandardMaterial({color:0xfff7d6}));c.position.set(x+3,0.95,z+2);levelGroup.add(c);
-  const f=new THREE.PointLight(0xff9d00,0.8,10);f.position.set(x+3,1.5,z+2);levelGroup.add(f);
-}
-function candy(x,z){
-  const cols=[0xec4899,0xff8c00,0x22d3ee,0xffe45e];
-  const col=cols[Math.floor(Math.random()*cols.length)];
-  const m=new THREE.Mesh(new THREE.TorusGeometry(0.32,0.15,12,20),new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:.55,roughness:.3}));
-  m.position.set(x,1.1,z);m.castShadow=true;levelGroup.add(m);
-  const halo=new THREE.Mesh(new THREE.SphereGeometry(0.55,10,8),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.22}));
-  halo.position.set(x,1.1,z);levelGroup.add(halo);
-  candies.push({m,halo,taken:false,timer:0});
-}
-function ghost(x,z,speed,pat){
-  const m=makeGhost();ghosts.push({m,x,z,speed,pi:0,pat,bub:0});
-}
-
-function buildWorld(){
-  // limpa
-  while(levelGroup.children.length)levelGroup.remove(levelGroup.children[0]);
-  solids.length=0;candies.length=0;ghosts.length=0;doors.length=0;decors.length=0;
-  scene.fog=new THREE.Fog(0x12082e,18,130);
-  // chão gigante: grama + rua
-  const gnd=new THREE.Mesh(new THREE.PlaneGeometry(230,80),new THREE.MeshStandardMaterial({map:grassTex,color:0xffffff}));
-  gnd.rotation.x=-Math.PI/2;gnd.position.set(110,0,35);gnd.receiveShadow=true;levelGroup.add(gnd);
-  const road=new THREE.Mesh(new THREE.PlaneGeometry(100,9),new THREE.MeshStandardMaterial({map:roadTex,color:0xffffff}));
-  road.rotation.x=-Math.PI/2;road.position.set(50,0.02,32);road.receiveShadow=true;levelGroup.add(road);
-  for(let i=0;i<13;i++){const tr=new THREE.Mesh(new THREE.PlaneGeometry(2,0.35),new THREE.MeshBasicMaterial({color:0xffe45e}));tr.rotation.x=-Math.PI/2;tr.position.set(8+i*7,0.04,32);levelGroup.add(tr);}
-  // lua
-  const moon=new THREE.Mesh(new THREE.SphereGeometry(6,20,20),new THREE.MeshBasicMaterial({color:0xfff3b0,fog:false}));moon.position.set(85,34,-25);levelGroup.add(moon);
-  const glow=new THREE.Mesh(new THREE.SphereGeometry(8.5,20,20),new THREE.MeshBasicMaterial({color:0xfff3b0,transparent:true,opacity:.2,fog:false}));glow.position.copy(moon.position);levelGroup.add(glow);
-  // casas da rua (fachadas)
-  houseShell(22,14,11,8,0x7c3aed);houseShell(50,14,12,9,0xff2e88);houseShell(78,14,11,8,0x22d3ee);
-  [[14,32],[34,32],[62,32],[86,32]].forEach(p=>lampPost(p[0],p[1]));
-  [[10,28],[40,36],[58,28],[90,28]].forEach((p,i)=>pumpkin(p[0],p[1],1));
-  // cercas rua
-  for(let x=8;x<94;x+=4){addSolid(x,23,2.2,0.3,1,new THREE.MeshStandardMaterial({color:0x2c1a55}));addSolid(x,41,2.2,0.3,1,new THREE.MeshStandardMaterial({color:0x2c1a55}));}
-  // ===== INTERIORES (doces ficam DENTRO) =====
-  const houses=[{sx:22,ix:135,iz:18},{sx:50,ix:165,iz:18},{sx:78,ix:195,iz:18}];
-  meta = level===1?12:18;
-  document.getElementById('hMeta')&&0;
-  houses.forEach((h,hi)=>{
-    const ix=h.ix,iz=h.iz;
-    // piso madeira interior
-    const fl=new THREE.Mesh(new THREE.PlaneGeometry(20,16),new THREE.MeshStandardMaterial({map:woodTex,color:0xffd9a0}));
-    fl.rotation.x=-Math.PI/2;fl.position.set(ix,0.03,iz);fl.receiveShadow=true;levelGroup.add(fl);
-    // paredes interiores
-    const wm=new THREE.MeshStandardMaterial({map:wallTex,color:0xffffff});
-    addSolid(ix,iz-8,20,0.7,4.2,wm);addSolid(ix,iz+8,20,0.7,4.2,wm);
-    addSolid(ix-10,iz,0.7,16,4.2,wm);addSolid(ix+10,iz,0.7,16,4.2,wm);
-    // divisória
-    addSolid(ix,iz,8,0.5,3.2,wm);
-    furniture(ix,iz,hi);
-    // porta de saída interior (teleporte de volta)
-    doors.push({x:ix,z:iz+7.2,tx:h.sx,tz:28,label:'Rua 🎃',in:false});
-    const ex=new THREE.Mesh(new THREE.PlaneGeometry(1.8,2.8),new THREE.MeshStandardMaterial({color:0xff4fc3,emissive:0x7a1040,emissiveIntensity:.6,side:THREE.DoubleSide}));
-    ex.position.set(ix,1.4,iz+7.4);levelGroup.add(ex);
-    // porta da rua -> interior
-    doors.push({x:h.sx,z:19.5,tx:ix,tz:iz+4,label:'Casa '+(hi+1)+' 🏚️',in:true});
-    // 4 doces por casa (DENTRO)
-    candy(ix-6,iz-5);candy(ix+6,iz-5);candy(ix-6,iz+4);candy(ix+3,iz-1);
-    // 1 fantasma por casa
-    ghost(ix,iz-2,level===1?2.8:3.8,[[ix-6,iz-4],[ix+6,iz-4],[ix+6,iz+4],[ix-6,iz+4]]);
-  });
-  // mansão fase 2 (extra doces + fantasmas)
-  if(level===2){
-    const mx=160,mz=52;
-    const fl=new THREE.Mesh(new THREE.PlaneGeometry(44,16),new THREE.MeshStandardMaterial({map:woodTex,color:0xc9a0ff}));
-    fl.rotation.x=-Math.PI/2;fl.position.set(mx,0.03,mz);fl.receiveShadow=true;levelGroup.add(fl);
-    const wm=new THREE.MeshStandardMaterial({color:0x2a1358,roughness:.8});
-    addSolid(mx,mz-8,44,0.7,4.5,wm);addSolid(mx,mz+8,44,0.7,4.5,wm);
-    addSolid(mx-22,mz,0.7,16,4.5,wm);addSolid(mx+22,mz,0.7,16,4.5,wm);
-    addSolid(mx-8,mz,0.6,10,3.5,wm);addSolid(mx+8,mz,0.6,10,3.5,wm);
-    for(let i=0;i<6;i++)candy(mx-18+i*6,mz+(i%2?4:-4));
-    ghost(mx-10,mz,4.2,[[mx-18,mz-4],[mx-2,mz-4],[mx-2,mz+4],[mx-18,mz+4]]);
-    ghost(mx+10,mz,4.5,[[mx+2,mz-4],[mx+18,mz-4],[mx+18,mz+4],[mx+2,mz+4]]);
-    doors.push({x:50,z:36.5,tx:mx,tz:mz+4,label:'Mansão 🏚️',in:true});
-    doors.push({x:mx,z:mz+7.2,tx:50,tz:38,label:'Rua 🎃',in:false});
-  }
-  // poeira flutuante (partículas)
-  const pn=300,pos=new Float32Array(pn*3);
-  for(let i=0;i<pn;i++){pos[i*3]=Math.random()*220;pos[i*3+1]=Math.random()*8;pos[i*3+2]=Math.random()*70;}
-  const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  const pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0xffb3e6,size:0.12,transparent:true,opacity:.8}));
-  levelGroup.add(pts);decors.push(pts);
-  updateLoc();
-}
-function updateLoc(){
-  // define nome do local pelo X
-  let l='Rua 🎃';
-  if(P.x>125&&P.x<150)l='Casa 1 🏚️';else if(P.x>155&&P.x<180)l='Casa 2 🏚️';
-  else if(P.x>185)l='Casa 3 🏚️';
-  if(level===2&&P.z>44&&P.x>135)l='Mansão 👻';
-  loc=l;document.getElementById('hLoc').textContent=l;
-}
-
-// ============ UI ============
-const ov=document.getElementById('overlay'),ovCard=document.getElementById('ovCard');
-function drawFace(){
-  const c=charDef();
-  document.getElementById('face').innerHTML=`<div style="position:absolute;inset:0;background:${save.custom.hair}"></div>
-   <div style="position:absolute;left:9px;right:9px;top:20px;bottom:5px;background:#ffe9d2;border-radius:10px"></div>
-   <div style="position:absolute;left:14px;top:33px;width:10px;height:12px;background:${c.eye};border-radius:50%"></div>
-   <div style="position:absolute;right:14px;top:33px;width:10px;height:12px;background:${c.eye};border-radius:50%"></div>
-   <div style="position:absolute;left:50%;top:5px;transform:translateX(-50%);font-size:24px">${save.custom.acc==='chapeu'?'🧙':save.custom.acc==='laco'?'🎀':'💀'}</div>`;
-  document.getElementById('hChar').textContent=c.nome;
-}
-function charCards(){
-  return CHARS.map(c=>{
-    const un=save.unlocked.includes(c.id);
-    return `<div class="char ${selChar===c.id?'sel':''} ${un?'':'locked'}" data-id="${c.id}">
-    <div class="doll" style="background:${c.hair}"><div style="position:absolute;left:12px;right:12px;top:26px;bottom:8px;background:#ffe9d2;border-radius:10px"></div>
-    <div style="position:absolute;left:20px;top:40px;width:12px;height:14px;background:${c.eye};border-radius:50%"></div>
-    <div style="position:absolute;right:20px;top:40px;width:12px;height:14px;background:${c.eye};border-radius:50%"></div></div>
-    <b>${un?c.nome:'???'}</b><br><small style="color:#ffd7f2">${un?c.desc:'🔒 '+c.need}</small></div>`;
-  }).join('');
-}
-function closetHTML(){
-  const c=save.custom;
-  const sw=(list,cur,key)=>list.map(v=>`<span class="sw ${cur===v?'sel':''}" data-k="${key}" data-v="${v}" style="background:${v}"></span>`).join('');
-  return `<div class="closet">
-   <div class="opt"><b>💇 Cabelo</b><br>${sw(['#16265e','#6d28d9','#ff4fc3','#00c2ff','#222222'],c.hair,'hair')}</div>
-   <div class="opt"><b>👗 Vestido</b><br>${sw(['#f8fafc','#ff4fc3','#1e3aff','#7c3aed','#ff8c00'],c.dress,'dress')}</div>
-   <div class="opt"><b>🎀 Acessório</b><br>
-    <button data-acc="caveira" class="${c.acc==='caveira'?'pink':''}">💀</button>
-    <button data-acc="laco" class="${c.acc==='laco'?'pink':''}">🎀</button>
-    <button data-acc="chapeu" class="${c.acc==='chapeu'?'pink':''}">🧙</button></div></div>`;
-}
-let tab='jogar';
-function showMenu(){
-  state='menu';if(girlMesh)girlMesh.visible=false;drawFace();
-  ov.classList.remove('hidden');
-  ovCard.innerHTML=`<div class="y2k-title">👻 HARUMI CAÇA-DOCES</div>
-  <div class="sub">Gráficos novos ✨ Doces <b>DENTRO das casas</b> 🏚️ Inimigos <b>fantasmas</b> 👻</div>
-  <div class="tabs"><button data-t="jogar" class="${tab==='jogar'?'pink':''}">▶ Jogar</button>
-  <button data-t="costi" class="${tab==='costi'?'pink':''}">💖 Closet da Harumi</button></div>
-  ${tab==='jogar'?`<div class="chars">${charCards()}</div>
-   <button data-f="1">▶ FASE 1: RUA + CASAS (12 🍬 dentro)</button>
-   <button class="pink" data-f="2" ${save.unlocked.includes('yuki')?'':'disabled'}>🏚️ FASE 2: MANSÃO (18 🍬)</button>
-   <p class="sub">Entre nas casas com <kbd>E</kbd> na porta verde. Fuja dos fantasmas 👻!<br><kbd>WASD</kbd> mover • <kbd>E</kbd> entrar/sair • <kbd>P</kbd> pausa • doces = moeda 💰</p>
-   <p class="sub">Banco: <b>${save.bank} 🍬</b></p>`
-  :`<p class="sub">Menu próprio de customização 💙🩷 — fica salvo!</p>${closetHTML()}<div class="chars">${charCards()}</div>`}`;
-  ovCard.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;showMenu();});
-  ovCard.querySelectorAll('.char').forEach(el=>el.onclick=()=>{
-    if(!save.unlocked.includes(el.dataset.id)){showPrompt('🔒 Bloqueada!');return;}
-    selChar=el.dataset.id;drawFace();refreshGirl();showMenu();});
-  ovCard.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>startLevel(+b.dataset.f));
-  ovCard.querySelectorAll('.sw').forEach(s=>s.onclick=()=>{save.custom[s.dataset.k]=s.dataset.v;persist();drawFace();refreshGirl();showMenu();});
-  ovCard.querySelectorAll('[data-acc]').forEach(b=>b.onclick=()=>{save.custom.acc=b.dataset.acc;persist();drawFace();refreshGirl();showMenu();});
-}
-function showPause(){
-  if(state!=='play')return;state='pause';document.exitPointerLock&&document.exitPointerLock();
-  ov.classList.remove('hidden');
-  ovCard.innerHTML=`<div class="y2k-title">⏸ PAUSA 💙🩷</div>
-  <p class="sub">${loc} • Doces ${P.got}/${meta} • Vidas ${P.lives}</p>
-  <button data-p="back" class="pink">▶ Continuar</button>
-  <button data-p="costi">💖 Closet da Harumi</button>
-  <button data-p="restart">↻ Reiniciar fase</button>
-  <button data-p="menu">★ Menu inicial</button>
-  <div id="pc"></div>`;
-  ovCard.querySelector('[data-p="back"]').onclick=()=>{ov.classList.add('hidden');state='play';};
-  ovCard.querySelector('[data-p="restart"]').onclick=()=>startLevel(level);
-  ovCard.querySelector('[data-p="menu"]').onclick=showMenu;
-  ovCard.querySelector('[data-p="costi"]').onclick=()=>{
-    document.getElementById('pc').innerHTML=closetHTML();
-    ovCard.querySelectorAll('.sw').forEach(s=>s.onclick=()=>{save.custom[s.dataset.k]=s.dataset.v;persist();drawFace();refreshGirl();showPause();});
-    ovCard.querySelectorAll('[data-acc]').forEach(b=>b.onclick=()=>{save.custom.acc=b.dataset.acc;persist();drawFace();refreshGirl();showPause();});
-  };
-  beep(440,.12);
-}
-function showWin(next){
-  state='win';document.exitPointerLock&&document.exitPointerLock();
-  const nw=[];
-  if(level===1&&!save.unlocked.includes('yuki')){save.unlocked.push('yuki');nw.push('🧙 Yuki Bruxa!');}
-  if(level===2&&!save.unlocked.includes('ren')){save.unlocked.push('ren');nw.push('🧛 Ren Vampiro!');}
-  if(save.bank>=40&&!save.unlocked.includes('sora')){save.unlocked.push('sora');nw.push('🎃 Sora Abóbora!');}
-  persist();ov.classList.remove('hidden');
-  ovCard.innerHTML=`<div class="y2k-title">🎉 FASE ${level} VENCIDA!</div>
-  <p>${P.got} 🍬 coletados (todos dentro das casas!) • Banco ${save.bank} 🍬</p>
-  ${nw.length?`<p class="blink">✦ DESBLOQUEOU: ${nw.join(' ')} ✦</p>`:''}
-  <button data-g="menu">★ MENU / CLOSET</button>${next?'<button class="pink" data-g="nx">PRÓXIMA ➜</button>':''}<button data-g="rp">↻ DE NOVO</button>`;
-  ovCard.querySelector('[data-g="menu"]').onclick=showMenu;
-  ovCard.querySelector('[data-g="rp"]').onclick=()=>startLevel(level);
-  const nx=ovCard.querySelector('[data-g="nx"]');if(nx)nx.onclick=()=>startLevel(2);
-  beep(880,.4);
-}
-function showDead(){
-  state='dead';document.exitPointerLock&&document.exitPointerLock();ov.classList.remove('hidden');
-  ovCard.innerHTML=`<div class="y2k-title">👻 PEGO!</div><p>Os fantasmas te assustaram! Banco: ${save.bank} 🍬</p>
-  <button data-g="m">★ MENU</button><button class="pink" data-g="r">↻ TENTAR</button>`;
-  ovCard.querySelector('[data-g="m"]').onclick=showMenu;
-  ovCard.querySelector('[data-g="r"]').onclick=()=>startLevel(level);
-  beep(140,.5);
-}
-
-// ============ INPUT ============
+// ============ CANVAS ============
+const cv = document.getElementById('game'), ctx = cv.getContext('2d');
+const W=960,H=600;
+const keys={};
 addEventListener('keydown',e=>{
-  const k=e.key.toLowerCase();keys[k]=true;
-  if(k==='e')interact();
-  if(k==='p'){state==='play'?showPause():(state==='pause'&&(ov.classList.add('hidden'),state='play'));}
+  const k=e.key.toLowerCase();
+  keys[k]=true;
+  if(k==='e') tryInteract();
+  if(k==='escape'||k==='p') togglePause();
+  if(k==='enter' && state!=='play') startStreet();
 });
 addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-document.getElementById('pauseBtn').onclick=()=>{state==='play'?showPause():state==='pause'&&(ov.classList.add('hidden'),state='play');};
-document.getElementById('tSprint').ontouchstart=e=>{e.preventDefault();sprintTouch=true};
-document.getElementById('tSprint').ontouchend=()=>sprintTouch=false;
-document.getElementById('tUse').ontouchstart=e=>{e.preventDefault();interact()};
-let locked=false;canvas.onclick=()=>{if(state==='play')canvas.requestPointerLock&&canvas.requestPointerLock();};
-document.addEventListener('pointerlockchange',()=>locked=document.pointerLockElement===canvas);
-document.addEventListener('mousemove',e=>{if(!locked||state!=='play')return;P.yaw-=e.movementX*0.0026;P.pitch-=e.movementY*0.0022;P.pitch=Math.max(-1.1,Math.min(.6,P.pitch));});
-function beep(f,d){try{const a=beep.ctx||(beep.ctx=new(window.AudioContext||window.webkitAudioContext)());const o=a.createOscillator(),g=a.createGain();o.type='square';o.frequency.value=f;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.07,a.currentTime);o.start();o.stop(a.currentTime+d);}catch(e){}}
-let pT=null;function showPrompt(t){const el=document.getElementById('prompt');el.textContent=t;el.style.display='block';clearTimeout(pT);pT=setTimeout(()=>el.style.display='none',2200);}
-function showTalk(t,ms){const el=document.getElementById('talk');el.textContent=t;el.style.display='block';clearTimeout(showTalk.t);showTalk.t=setTimeout(()=>el.style.display='none',ms||1800);}
-function interact(){
-  if(state!=='play')return;
-  for(const d of doors){
-    if(Math.hypot(P.x-d.x,P.z-d.z)<2.6){
-      P.x=d.tx;P.z=d.tz;beep(600,.12);
-      showTalk(d.in?('🏚️ Entrou! Ache os doces AQUI DENTRO!'):('🎃 Voltou à rua!'),1800);
-      updateLoc();return;
-    }
-  }
-  // dica porta próxima
-  let nd=null,dd=99;for(const d of doors){const d0=Math.hypot(P.x-d.x,P.z-d.z);if(d0<dd){dd=d0;nd=d;}}
-  if(nd&&dd<6)showPrompt('Chegue mais perto da porta '+nd.label+' e aperte E');
-  else showPrompt('🍬 Os doces estão DENTRO das casas! Entre pela porta verde!');
+document.querySelectorAll('#touch [data-k]').forEach(b=>{
+  b.ontouchstart=e=>{e.preventDefault();keys[b.dataset.k]=true};
+  b.ontouchend=()=>keys[b.dataset.k]=false;
+});
+document.getElementById('tE').ontouchstart=e=>{e.preventDefault();tryInteract()};
+document.getElementById('tP').ontouchstart=e=>{e.preventDefault();togglePause()};
+
+// ============ ESTADO ============
+let state='menu', paused=false, muted=false;
+let mode='street'; // street | inside
+let camX=0, camY=0, time=0;
+const P={x:100,y:440,vx:0,vy:0,r:20,speed:230,lives:3,stamina:100,got:0,inv:0,face:1,walk:0};
+let candies=[], ghosts=[], houses=[], parts=[], stars=[];
+for(let i=0;i<120;i++) stars.push({x:Math.random()*3000,y:Math.random()*500,s:Math.random()*2+0.5,tw:Math.random()*6});
+const TOTAL = 18;
+
+function beep(f,d,type){ if(muted) return; try{ const a=beep.c||(beep.c=new (window.AudioContext||window.webkitAudioContext)()); const o=a.createOscillator(),g=a.createGain(); o.type=type||'square'; o.frequency.value=f; o.connect(g);g.connect(a.destination); g.gain.setValueAtTime(.06,a.currentTime); o.start(); o.stop(a.currentTime+d);}catch(e){} }
+function prompt(t,ms){ const el=document.getElementById('prompt'); el.textContent=t; el.style.display='block'; clearTimeout(prompt.t); prompt.t=setTimeout(()=>el.style.display='none',ms||2000); }
+function talk(t,ms){ const el=document.getElementById('talk'); el.textContent=t; el.style.display='block'; clearTimeout(talk.t); talk.t=setTimeout(()=>el.style.display='none',ms||2200); }
+
+// ============ MAPAS ============
+function buildStreet(){
+  mode='street'; houses=[
+    {x:420,name:'Casa Abóbora 🎃',c:'#ff8c00',done:false},
+    {x:1100,name:'Casa Bruxa 🧙',c:'#7c3aed',done:false},
+    {x:1780,name:'Casa Caveira 💀',c:'#38bdf8',done:false},
+  ];
+  candies=[{x:300,y:470,taken:false},{x:820,y:470,taken:false},{x:1450,y:470,taken:false}];
+  ghosts=[ mkGhost(700,400,0), mkGhost(1500,400,1) ];
+  P.x=100;P.y=460;
 }
-function refreshGirl(){if(girlMesh)scene.remove(girlMesh);girlMesh=makeGirl();girlMesh.visible=(state==='play');}
-function startLevel(f){
-  level=f;buildWorld();refreshGirl();
-  P.x=10;P.z=32;P.yaw=-Math.PI/2;P.pitch=-0.15;P.stamina=100;P.inv=0;P.got=0;
-  P.lives=charDef().lives;
-  document.getElementById('hFase').textContent=f;
-  document.getElementById('hBank').textContent=save.bank;
-  state='play';ov.classList.add('hidden');girlMesh.visible=true;
-  showTalk(f===1?'🎃 Entre nas 3 CASAS e pegue 12 🍬 LÁ DENTRO! Cuidado com fantasmas 👻':'🏚️ Mansão + casas: 18 🍬 DENTRO! Fantasmas rápidos!',3000);
+function interiorWalls(hi){
+  // sala 960x600 com divisórias, porta de saída em cima
+  const wl=[
+    {x:0,y:0,w:960,h:24},{x:0,y:576,w:960,h:24},{x:0,y:0,w:24,h:600},{x:936,y:0,w:24,h:600},
+    {x:200,y:120,w:24,h:260},{x:200,y:120,w:300,h:24},{x:560,y:200,w:200,h:24},{x:560,y:224,w:24,h:200},
+    {x:120,y:460,w:300,h:24},{x:560,y:460,w:260,h:24},{x:420,y:280,w:24,h:180},
+  ];
+  if(hi===1) wl.push({x:700,y:100,w:24,h:200});
+  if(hi===2) wl.push({x:320,y:200,w:200,h:24},{x:700,y:340,w:24,h:140});
+  return wl;
+}
+let walls=[];
+function enterHouse(i){
+  mode='inside'; houseIdx=i;
+  walls=interiorWalls(i);
+  P.x=480;P.y=520;
+  const spots=[[120,100],[320,80],[640,90],[840,110],[140,300],[340,340],[620,330],[820,300],[140,520],[340,520],[640,520],[820,520]].slice(0,6);
+  candies=spots.map(s=>({x:s[0],y:s[1],taken:false,big:true}));
+  ghosts=[ mkGhost(300,200,i), mkGhost(660,420,i+1), mkGhost(480,150,i+2) ];
+  talk('🏚️ '+houses[i].name+' — ache os 6 doces! Cuidado com os fantasmas 👻',2600);
+  beep(300,.25,'sawtooth');
+}
+function mkGhost(x,y,v){ return {x,y,vx:0,vy:0,pat:Math.random()*6,sp:110+v*22,home:{x,y},hit:0}; }
+
+// ============ INTERAÇÃO ============
+function tryInteract(){
+  if(state!=='play'||paused) return;
+  if(mode==='street'){
+    for(let i=0;i<houses.length;i++){ const h=houses[i];
+      if(Math.abs(P.x-(h.x+60))<80 && Math.abs(P.y-430)<90){ enterHouse(i); return; } }
+    prompt('Vá até uma porta e aperte E para entrar 🏠');
+  } else {
+    if(P.y>500 && Math.abs(P.x-480)<90){ mode='street'; P.x=houses[houseIdx].x+60; P.y=460;
+      walls=[]; candies=[{x:300,y:470,taken:false},{x:820,y:470,taken:false}].filter(c=>!c.taken);
+      ghosts=[ mkGhost(700,400,0), mkGhost(1500,400,1) ];
+      talk('🎃 Rua Halloween — entre em outra casa!',2000); return; }
+  }
 }
 
-// ============ LOOP ============
-const hC=document.getElementById('hCandy'),hB=document.getElementById('hBank'),hL=document.getElementById('hLives'),dmg=document.getElementById('dmg');
-const clock=new THREE.Clock();
-function tick(){
-  requestAnimationFrame(tick);
-  const dt=Math.min(clock.getDelta(),0.05),t=clock.elapsedTime;
-  decors.forEach((d,i)=>{if(d.rotation)d.rotation.y+=dt*.5;});
-  if(state==='play'){
-    let f=0,s=0;
-    if(keys['w']||keys['arrowup'])f+=1;if(keys['s']||keys['arrowdown'])f-=1;
-    if(keys['d']||keys['arrowright'])s+=1;if(keys['a']||keys['arrowleft'])s-=1;
-    const mov=(f||s);
-    const run=(keys['shift']||sprintTouch)&&mov&&P.stamina>1;
-    let sp=5*charDef().speed;if(run)sp*=1.55;
-    if(run)P.stamina=Math.max(0,P.stamina-22*dt);else P.stamina=Math.min(100,P.stamina+(mov?6:12)*dt);
-    const sin=Math.sin(P.yaw),cos=Math.cos(P.yaw);
-    let mx=(-sin*f+cos*s),mz=(-cos*f-sin*s);
-    if(mov){const l=Math.hypot(mx,mz);mx/=l;mz/=l;}
-    const nx=P.x+mx*sp*dt,nz=P.z+mz*sp*dt;
-    if(!collide(nx,P.z))P.x=nx;if(!collide(P.x,nz))P.z=nz;
-    if(P.inv>0){P.inv-=dt;if(P.inv<=0)dmg.style.display='none';}
-    updateLoc();
-    const cd=5.4,ch=2.7;
-    camera.position.set(P.x+sin*cd*Math.cos(P.pitch),Math.max(1.2,ch-Math.sin(P.pitch)*cd),P.z+cos*cd*Math.cos(P.pitch));
-    camera.lookAt(P.x,1.7,P.z);
-    girlMesh.position.set(P.x,mov?Math.abs(Math.sin(t*10))*0.08:Math.sin(t*2)*0.03,P.z);
-    girlMesh.rotation.y=mov?Math.atan2(mx,mz):P.yaw+Math.PI;
-    playerLight.position.set(P.x,2.6,P.z);
-    const magnet=selChar==='sora'?3.2:1.4;
-    candies.forEach(c=>{
-      if(c.taken){c.timer-=dt;if(c.timer<=0){c.taken=false;c.m.visible=true;c.halo.visible=true;}}
-      else{c.m.rotation.y+=dt*2.5;c.halo.rotation.y-=dt;c.m.position.y=1.1+Math.sin(t*3+c.m.position.x)*0.12;c.halo.position.y=c.m.position.y;
-        if(Math.hypot(P.x-c.m.position.x,P.z-c.m.position.z)<magnet){
-          c.taken=true;c.timer=60;c.m.visible=false;c.halo.visible=false;P.got++;save.bank++;persist();
-          P.stamina=Math.min(100,P.stamina+25);beep(740+Math.random()*250,.1);
-          if(P.got>=meta)showTalk('✦ TODOS OS DOCES! Volte à rua / vença! ✦',2500);
-        }}
-    });
-    for(const gh of ghosts){
-      const d=Math.hypot(P.x-gh.x,P.z-gh.z);
-      let vx,vz,vl;
-      if(d<14){vx=P.x-gh.x;vz=P.z-gh.z;vl=Math.hypot(vx,vz)||1;vx/=vl;vz/=vl;
-        const ax=gh.x+vx*gh.speed*dt,az=gh.z+vz*gh.speed*dt;
-        if(!collide(ax,gh.z))gh.x=ax;if(!collide(gh.x,az))gh.z=az;
-        if(gh.bub<=0&&d<8){gh.bub=2.5;const tx=GHOST_TALK[Math.floor(Math.random()*GHOST_TALK.length)];setBubble(gh.m,tx);showTalk('👻 "'+tx+'"',1500);beep(200,.2);}
-      }else{const wp=gh.pat[gh.pi];vx=wp[0]-gh.x;vz=wp[1]-gh.z;vl=Math.hypot(vx,vz);
-        if(vl<0.8)gh.pi=(gh.pi+1)%gh.pat.length;else{vx/=vl;vz/=vl;const ax=gh.x+vx*gh.speed*.5*dt,az=gh.z+vz*gh.speed*.5*dt;if(!collide(ax,gh.z))gh.x=ax;if(!collide(gh.x,az))gh.z=az;}}
-      gh.bub-=dt;gh.m.userData.bal.visible=gh.bub>0;
-      gh.m.position.set(gh.x,Math.sin(t*3+gh.x)*0.25,gh.z);
-      gh.m.rotation.y=Math.atan2(P.x-gh.x,P.z-gh.z);
-      if(d<1.4&&P.inv<=0){
-        P.lives--;P.inv=2;P.got=Math.max(0,P.got-1);save.bank=Math.max(0,save.bank-1);persist();
-        dmg.style.display='block';beep(120,.35);showTalk('👻 BU! O fantasma te assustou! -1 🍬',1800);
-        if(P.lives<=0)showDead();else showPrompt('Ai! Vidas: '+P.lives);
-      }
-    }
-    // vitória: precisa estar na rua com meta
-    const naRua=P.x<110;
-    if(P.got>=meta&&naRua&&(level===1||level===2)){showWin(level===1);}
-    hC.textContent=P.got+'/'+meta;hB.textContent=save.bank;hL.textContent=P.lives;
-    // dica de porta
-    let nd=null,dd=99;for(const d of doors){const d0=Math.hypot(P.x-d.x,P.z-d.z);if(d0<dd){dd=d0;nd=d;}}
-    if(nd&&dd<3){const pr=document.getElementById('prompt');if(pr.style.display!=='block'){pr.textContent='Aperte E para '+(nd.in?'entrar em ':'sair para ')+nd.label;pr.style.display='block';clearTimeout(pT);pT=setTimeout(()=>pr.style.display='none',1500);}}
-  }
-  renderer.render(scene,camera);
+// ============ DESENHO MELHORADO ============
+function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function drawSky(cam){
+  const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#150b45'); g.addColorStop(.6,'#3b1470'); g.addColorStop(1,'#a1237a');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  // lua grande com crateras
+  ctx.save(); ctx.shadowColor='#fff3b0'; ctx.shadowBlur=40;
+  ctx.fillStyle='#fff3b0'; ctx.beginPath(); ctx.arc(800-cam*0.05,110,62,0,7); ctx.fill(); ctx.restore();
+  ctx.fillStyle='#e8d88a'; [[780,95,10],[815,120,14],[795,135,7]].forEach(c=>{ctx.beginPath();ctx.arc(c[0],c[1],c[2],0,7);ctx.fill();});
+  // estrelas
+  stars.forEach(s=>{ const a=.4+.6*Math.abs(Math.sin(time*2+s.tw)); ctx.globalAlpha=a; ctx.fillStyle='#fff'; ctx.fillRect(((s.x-cam)%W+W)%W,s.y,s.s,s.s); }); ctx.globalAlpha=1;
+  // colinas + silhuetas
+  ctx.fillStyle='#170b38'; ctx.beginPath(); ctx.ellipse(200,620,500,120,0,0,7); ctx.ellipse(700,630,600,140,0,0,7); ctx.fill();
 }
-buildWorld();showMenu();drawFace();tick();
+function drawStreet(){
+  drawSky(camX);
+  // chão
+  const g=ctx.createLinearGradient(0,400,0,H); g.addColorStop(0,'#3a2a6e'); g.addColorStop(1,'#1a1038');
+  ctx.fillStyle=g; ctx.fillRect(0,400,W,H-400);
+  ctx.fillStyle='#0e0a26'; ctx.fillRect(0,470,W,70); // rua
+  ctx.fillStyle='#ffe45e'; for(let x=-(camX%80);x<W;x+=80) ctx.fillRect(x,500,40,6);
+  // postes
+  for(let x=200;x<2400;x+=420){ const sx=x-camX; if(sx<-60||sx>W+60)continue;
+    ctx.fillStyle='#111'; ctx.fillRect(sx,250,10,220);
+    ctx.save(); ctx.shadowColor='#ff9d00'; ctx.shadowBlur=25; ctx.fillStyle='#ffb300'; ctx.beginPath(); ctx.arc(sx+5,245,14,0,7); ctx.fill(); ctx.restore(); }
+  // casas
+  houses.forEach((h,i)=>{ const sx=h.x-camX; if(sx<-220||sx>W+220) return;
+    // corpo
+    ctx.save(); ctx.shadowColor=h.c; ctx.shadowBlur=25;
+    ctx.fillStyle='#241545'; ctx.fillRect(sx,240,180,200); ctx.restore();
+    ctx.fillStyle=h.c+'55'; ctx.fillRect(sx,240,180,200);
+    ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.strokeRect(sx,240,180,200);
+    // telhado
+    ctx.fillStyle=h.c; ctx.beginPath(); ctx.moveTo(sx-15,240); ctx.lineTo(sx+90,150); ctx.lineTo(sx+195,240); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#0006'; ctx.beginPath(); ctx.moveTo(sx-15,240); ctx.lineTo(sx+90,150); ctx.lineTo(sx+90,240); ctx.closePath(); ctx.fill();
+    // janelas acesas
+    [[sx+20,290],[sx+120,290]].forEach(p=>{ ctx.save(); ctx.shadowColor='#ffe45e'; ctx.shadowBlur=15; ctx.fillStyle='#ffe45e'; rr(p[0],p[1],40,55,6); ctx.fill(); ctx.restore();
+      ctx.fillStyle='#000'; ctx.fillRect(p[0]+17,p[1],6,55); ctx.fillRect(p[0],p[1]+24,40,6);
+      // silhueta morcego
+      ctx.fillStyle='#000'; ctx.font='16px serif'; ctx.fillText('🦇',p[0]+8,p[1]+20); });
+    // porta
+    const done = houseCandies(i);
+    ctx.save(); ctx.shadowColor= done?'#555':'#22c55e'; ctx.shadowBlur=18;
+    ctx.fillStyle= done?'#555':'#22c55e'; rr(sx+65,360,50,80,8); ctx.fill(); ctx.restore();
+    ctx.fillStyle='#fff'; ctx.font='bold 12px Fredoka'; ctx.fillText(done?'✔':'E ➜',sx+76,402);
+    ctx.fillStyle='#fff'; ctx.font='bold 14px Fredoka'; ctx.fillText(h.name,sx+8,230);
+    // abóbora na frente
+    drawPumpkin(sx+10,448,1); drawPumpkin(sx+140,448,0.8);
+  });
+  // doces rua
+  candies.forEach(c=>{ if(!c.taken) drawCandy(c.x-camX,c.y,1,time); });
+}
+function houseCandies(i){ return false; }
+function drawInterior(){
+  // papel de parede
+  const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#241040'); g.addColorStop(1,'#120826');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#ffffff10'; for(let y=40;y<H;y+=56) for(let x=0;x<W;x+=56){ ctx.fillRect(x+((y/56)%2)*28,y,2,2); }
+  // chão madeira
+  ctx.fillStyle='#4a2f1d'; ctx.fillRect(0,470,W,130);
+  ctx.fillStyle='#00000033'; for(let y=480;y<H;y+=22) ctx.fillRect(0,y,W,3);
+  // teias
+  ctx.strokeStyle='#ffffff88'; ctx.lineWidth=2;
+  [[40,40],[920,40]].forEach(p=>{ for(let i=0;i<4;i++){ ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(p[0]+(i-1.5)*30,p[1]+60); ctx.stroke(); } });
+  // paredes
+  walls.forEach(wl=>{ ctx.save(); ctx.shadowColor='#a855f7'; ctx.shadowBlur=8;
+    ctx.fillStyle='#5b3a8e'; ctx.fillRect(wl.x,wl.y,wl.w,wl.h);
+    ctx.fillStyle='#7c5cbf'; ctx.fillRect(wl.x,wl.y,wl.w,6); ctx.restore();
+    ctx.strokeStyle='#2a1650'; ctx.strokeRect(wl.x,wl.y,wl.w,wl.h); });
+  // porta saída
+  ctx.save(); ctx.shadowColor='#22c55e'; ctx.shadowBlur=20; ctx.fillStyle='#22c55e'; rr(430,576-34,100,34,8); ctx.fill(); ctx.restore();
+  ctx.fillStyle='#fff'; ctx.font='bold 13px Fredoka'; ctx.fillText('SAÍDA ⬇ (E)',442,572);
+  // velas
+  [[80,440],[880,440],[480,80]].forEach(p=>{ ctx.fillStyle='#fff7d6'; ctx.fillRect(p[0],p[1],10,22);
+    ctx.save(); ctx.shadowColor='#ff9d00'; ctx.shadowBlur=22; ctx.fillStyle='#ff9d00'; ctx.beginPath(); ctx.arc(p[0]+5,p[1]-4,7+Math.sin(time*9+p[0])*1.5,0,7); ctx.fill(); ctx.restore(); });
+  candies.forEach(c=>{ if(!c.taken) drawCandy(c.x,c.y,1.25,time); });
+  // escuridão com luz na Harumi
+  ctx.save(); ctx.globalCompositeOperation='source-over';
+  const d=ctx.createRadialGradient(P.x,P.y,60,P.x,P.y,300);
+  d.addColorStop(0,'rgba(0,0,0,0)'); d.addColorStop(1,'rgba(0,0,0,.55)');
+  ctx.fillStyle=d; ctx.fillRect(0,0,W,H); ctx.restore();
+}
+function drawPumpkin(x,y,s){
+  ctx.save(); ctx.translate(x,y); ctx.scale(s,s);
+  ctx.shadowColor='#ff8c00'; ctx.shadowBlur=16;
+  ctx.fillStyle='#ff7b00'; ctx.beginPath(); ctx.ellipse(0,0,22,18,0,0,7); ctx.fill();
+  ctx.fillStyle='#e56b00'; ctx.beginPath(); ctx.ellipse(-8,0,10,17,0,0,7); ctx.fill(); ctx.beginPath(); ctx.ellipse(8,0,10,17,0,0,7); ctx.fill();
+  ctx.shadowBlur=0; ctx.fillStyle='#3a1c00'; ctx.fillRect(-3,-26,6,10);
+  ctx.fillStyle='#ffe45e'; ctx.fillRect(-13,-8,9,9); ctx.fillRect(4,-8,9,9);
+  ctx.beginPath(); ctx.moveTo(-12,8); ctx.lineTo(-4,2); ctx.lineTo(4,8); ctx.lineTo(12,8); ctx.lineTo(12,14); ctx.lineTo(-12,14); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function drawCandy(x,y,s,t){
+  if(x<-30||x>W+30) return;
+  ctx.save(); ctx.translate(x,y+Math.sin(t*3+x)*4); ctx.scale(s,s); ctx.shadowColor='#ff4fc3'; ctx.shadowBlur=16;
+  ctx.rotate(Math.sin(t*2+x)*0.3);
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.moveTo(-22,0); ctx.lineTo(-12,-9); ctx.lineTo(-12,9); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(22,0); ctx.lineTo(12,-9); ctx.lineTo(12,9); ctx.closePath(); ctx.fill();
+  const g=ctx.createLinearGradient(-12,0,12,0); g.addColorStop(0,'#ff4fc3'); g.addColorStop(.5,'#fff'); g.addColorStop(1,'#38bdf8');
+  ctx.fillStyle=g; rr(-13,-10,26,20,9); ctx.fill();
+  ctx.strokeStyle='#fff'; ctx.lineWidth=2; rr(-13,-10,26,20,9); ctx.stroke();
+  ctx.fillStyle='#ff2e88'; ctx.font='bold 13px serif'; ctx.fillText('🍬',-9,6);
+  ctx.restore();
+}
+// HARUMI — a mais destacada: maior, glow, nome, sparkles
+function drawHarumi(x,y,opt){
+  opt=opt||custom;
+  const s=1.55; // maior que tudo
+  ctx.save(); ctx.translate(x,y);
+  // glow da customização
+  const glowC = opt.glow==='azul'?'#38e1ff':opt.glow==='dourado'?'#ffe45e':'#ff4fc3';
+  ctx.shadowColor=glowC; ctx.shadowBlur=30;
+  // sombra
+  ctx.shadowBlur=0; ctx.fillStyle='#0007'; ctx.beginPath(); ctx.ellipse(0,26,24,8,0,0,7); ctx.fill();
+  ctx.shadowColor=glowC; ctx.shadowBlur=26;
+  // anel destaque
+  ctx.strokeStyle=glowC; ctx.lineWidth=3; ctx.setLineDash([8,6]); ctx.lineDashOffset=-time*30;
+  ctx.beginPath(); ctx.ellipse(0,10,30,34,0,0,7); ctx.stroke(); ctx.setLineDash([]);
+  // pernas
+  ctx.fillStyle='#1c1033'; ctx.fillRect(-14,-2,11,28); ctx.fillRect(3,-2,11,28);
+  ctx.fillStyle='#ff4fc3'; ctx.fillRect(-14,20,11,6); ctx.fillRect(3,20,11,6);
+  // vestido
+  const dc = opt.dress==='rosa'?'#ff8fd6':opt.dress==='azul'?'#38bdf8':'#f8fafc';
+  ctx.fillStyle=dc; ctx.beginPath(); ctx.moveTo(-10,-2); ctx.lineTo(10,-2); ctx.lineTo(20,22); ctx.lineTo(-20,22); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+  // caveirinha no vestido
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(0,8,9,0,7); ctx.fill();
+  ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(-3.5,7,2.4,0,7); ctx.arc(3.5,7,2.4,0,7); ctx.fill();
+  ctx.fillRect(-2,12,4,3);
+  // braços
+  ctx.fillStyle='#ffe0c4'; ctx.fillRect(-24,-14,9,22); ctx.fillRect(15,-14,9,22);
+  // cabeça
+  ctx.fillStyle='#ffe0c4'; ctx.beginPath(); ctx.arc(0,-30,17,0,7); ctx.fill(); ctx.strokeStyle='#fff'; ctx.stroke();
+  // cabelo azul-marinho (estilos)
+  ctx.fillStyle='#16265e';
+  if(opt.hair==='coques'){ ctx.beginPath(); ctx.arc(-16,-46,9,0,7); ctx.arc(16,-46,9,0,7); ctx.fill(); ctx.fillRect(-18,-46,36,22); }
+  else if(opt.hair==='curto'){ rr(-19,-52,38,20,8); ctx.fill(); }
+  else { rr(-20,-52,40,22,8); ctx.fill(); ctx.fillRect(-22,-34,10,34); ctx.fillRect(12,-34,10,34); }
+  ctx.fillStyle='#16265e'; ctx.fillRect(-15,-38,30,8); // franja
+  // olhos rosados grandes
+  ctx.fillStyle='#ff7ac8'; ctx.beginPath(); ctx.arc(-6.5,-28,4.6,0,7); ctx.arc(6.5,-28,4.6,0,7); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-5.5,-29.5,1.6,0,7); ctx.arc(7.5,-29.5,1.6,0,7); ctx.fill();
+  ctx.fillStyle='#7c2d12'; ctx.beginPath(); ctx.arc(0,-18,2.2,0,7); ctx.fill();
+  // tiara
+  ctx.font='15px serif';
+  ctx.fillText(opt.tiara==='abobora'?'🎃':opt.tiara==='bruxa'?'🧙':'💀',-8,-48);
+  // sparkles destaque
+  ctx.shadowBlur=0;
+  for(let i=0;i<5;i++){ const a=time*3+i*1.256; const sx2=Math.cos(a)*34, sy2=Math.sin(a)*38+2;
+    ctx.fillStyle=['#fff','#ffe45e','#ff4fc3'][i%3]; ctx.globalAlpha=.7+.3*Math.sin(time*6+i);
+    ctx.fillText('✦',sx2-5,sy2); }
+  ctx.globalAlpha=1;
+  // nome
+  ctx.fillStyle='#fff'; ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.font='bold 13px Fredoka';
+  ctx.strokeText('HARUMI ★',-32,-62); ctx.fillText('HARUMI ★',-32,-62);
+  ctx.restore();
+}
+function drawGhost(g){
+  ctx.save(); ctx.translate(g.x,g.y+Math.sin(time*4+g.pat)*5);
+  const flash = g.hit>0;
+  ctx.shadowColor= flash?'#ff0000':'#9fd8ff'; ctx.shadowBlur=20;
+  ctx.fillStyle= flash?'#ff8888':'#f4faff';
+  ctx.beginPath(); ctx.moveTo(-20,20);
+  ctx.lineTo(-20,-8); ctx.quadraticCurveTo(-20,-26,0,-26); ctx.quadraticCurveTo(20,-26,20,-8); ctx.lineTo(20,20);
+  for(let i=0;i<4;i++){ ctx.lineTo(10-i*10,12+((i+Math.floor(time*6)%2)%2)*8); }
+  ctx.closePath(); ctx.fill();
+  ctx.shadowBlur=0;
+  // olhos bravos
+  ctx.fillStyle='#111'; ctx.beginPath(); ctx.ellipse(-7,-8,4.5,6,0,0,7); ctx.ellipse(7,-8,4.5,6,0,0,7); ctx.fill();
+  ctx.fillStyle='#ff2e88'; ctx.beginPath(); ctx.arc(-7,-8,1.8,0,7); ctx.arc(7,-8,1.8,0,7); ctx.fill();
+  ctx.strokeStyle='#111'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(-12,-18); ctx.lineTo(-2,-14); ctx.moveTo(12,-18); ctx.lineTo(2,-14); ctx.stroke();
+  ctx.fillStyle='#111'; ctx.beginPath(); ctx.ellipse(0,6,4,6,0,0,7); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='bold 11px Fredoka'; ctx.fillText('BOO!',-14,-30);
+  ctx.restore();
+}
+function drawParts(){
+  parts=parts.filter(p=>p.l>0);
+  parts.forEach(p=>{ p.x+=p.vx*0.016; p.y+=p.vy*0.016; p.l-=0.016;
+    ctx.globalAlpha=Math.max(0,p.l); ctx.fillStyle=p.c; ctx.fillRect(p.x,p.y,p.s,p.s); });
+  ctx.globalAlpha=1;
+}
+function burst(x,y,c,n){ for(let i=0;i<(n||14);i++){ const a=Math.random()*7,sp=60+Math.random()*160;
+  parts.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-60,l:.6+Math.random()*.5,c:c||'#ffe45e',s:3+Math.random()*4}); } }
+
+// ============ UPDATE ============
+function rectHit(px,py,r,wl){ return px+r>wl.x&&px-r<wl.x+wl.w&&py+r>wl.y&&py-r<wl.y+wl.h; }
+function update(dt){
+  time+=dt;
+  if(state!=='play'||paused) return;
+  let ax=0,ay=0;
+  if(keys['w']||keys['arrowup'])ay-=1; if(keys['s']||keys['arrowdown'])ay+=1;
+  if(keys['a']||keys['arrowleft'])ax-=1; if(keys['d']||keys['arrowright'])ax+=1;
+  const moving=ax||ay;
+  const wantRun=(keys['shift'])&&moving&&P.stamina>1;
+  let sp=P.speed*(wantRun?1.6:1);
+  if(P.stamina<=0) sp*=0.6;
+  if(moving){ const l=Math.hypot(ax,ay); ax/=l; ay/=l; P.walk+=dt*10; P.face=ax<0?-1:ax>0?1:P.face; }
+  if(wantRun)P.stamina=Math.max(0,P.stamina-22*dt); else P.stamina=Math.min(100,P.stamina+(moving?8:16)*dt);
+  let nx=P.x+ax*sp*dt, ny=P.y+ay*sp*dt;
+  if(mode==='inside'){ for(const wl of walls){ if(rectHit(nx,P.y,P.r-6,wl)){nx=P.x;break;} } for(const wl of walls){ if(rectHit(nx,ny,P.r-6,wl)){ny=P.y;break;} }
+    nx=Math.max(30,nx); nx=Math.min(930,nx); ny=Math.max(30,ny); ny=Math.min(570,ny);
+  } else { nx=Math.max(20,Math.min(2380,nx)); ny=430+Math.sin(nx*0.01)*8; }
+  P.x=nx;P.y=ny;
+  if(P.inv>0)P.inv-=dt;
+  // camera
+  if(mode==='street'){ camX=Math.max(0,Math.min(2400-W,P.x-W/2)); camY=0; }
+  else { camX=0; camY=0; }
+  // doces
+  const magnet=26;
+  candies.forEach(c=>{ if(c.taken)return;
+    const cx=mode==='street'?c.x-camX:c.x, cy=c.y;
+    const px=mode==='street'?P.x-camX:P.x;
+    if(Math.hypot(px-cx,P.y-cy)<magnet+14){ c.taken=true; P.got++; save.bank++; persist();
+      P.stamina=Math.min(100,P.stamina+25); burst(P.x,P.y-20,'#ff4fc3',16); beep(700+Math.random()*300,.12);
+      if(P.got>=TOTAL) winGame(); else if(P.got%6===0) talk('✦ Casa limpa! Volte à rua (porta verde) e entre na próxima! ✦',2500);
+    }});
+  // fantasmas
+  ghosts.forEach(g=>{
+    if(g.hit>0)g.hit-=dt;
+    g.pat+=dt;
+    const d=Math.hypot(P.x-g.x,P.y-g.y);
+    let vx,vy;
+    if(d<260){ vx=(P.x-g.x)/ (d||1); vy=(P.y-g.y)/(d||1); }
+    else { vx=Math.cos(g.pat*0.8)*0.6; vy=Math.sin(g.pat*1.1)*0.6; }
+    g.x+=vx*g.sp*dt; g.y+=vy*g.sp*dt*0.8;
+    if(mode==='inside'){ g.x=Math.max(40,Math.min(920,g.x)); g.y=Math.max(40,Math.min(560,g.y)); }
+    if(d<34&&P.inv<=0){ P.lives--; P.inv=2; g.hit=1; save.bank=Math.max(0,save.bank-2); persist();
+      document.getElementById('flash').style.display='block'; setTimeout(()=>document.getElementById('flash').style.display='none',250);
+      burst(P.x,P.y,'#ff4fc3',20); beep(130,.4,'sawtooth'); talk('👻 BOO! O fantasma te assustou! Vidas: '+P.lives,2000);
+      if(P.lives<=0) deadGame(); else prompt('Ai! Vidas: '+P.lives);
+    }
+  });
+  // folhas
+  if(Math.random()<0.15) parts.push({x:camX+Math.random()*W,y:-10,vx:-30,vy:80,l:4,c:['#ff8c00','#ff4fc3','#38bdf8'][Math.floor(Math.random()*3)],s:4});
+  document.getElementById('hCandy').textContent=P.got+'/'+TOTAL;
+  document.getElementById('hBank').textContent=save.bank;
+  document.getElementById('hLives').textContent=P.lives;
+  document.getElementById('hSt').textContent=Math.floor(P.stamina);
+  document.getElementById('hWhere').textContent=mode==='street'?'Rua Halloween 🎃':houses[houseIdx].name;
+}
+function render(){
+  ctx.clearRect(0,0,W,H);
+  if(mode==='street'){ drawStreet();
+    // player rua
+    drawHarumi(P.x-camX,P.y);
+    ghosts.forEach(g=>{ const sx=g.x-camX; if(sx>-40&&sx<W+40){ const tmp={...g,x:sx}; drawGhost(tmp);} });
+    // dica portas
+    houses.forEach(h=>{ if(Math.abs(P.x-(h.x+60))<80){ ctx.fillStyle='#fff'; ctx.font='bold 14px Fredoka';
+      ctx.fillText('Aperte E para entrar 🏠',h.x-camX-30,470); } });
+  } else { drawInterior(); drawHarumi(P.x,P.y); ghosts.forEach(drawGhost);
+    if(P.y>480){ ctx.fillStyle='#fff'; ctx.font='bold 14px Fredoka'; ctx.fillText('Aperte E para voltar à rua',380,500); } }
+  drawParts();
+  // vinheta
+  const v=ctx.createRadialGradient(W/2,H/2,260,W/2,H/2,650); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.45)');
+  ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
+}
+
+// ============ TELAS ============
+const ov=document.getElementById('overlay'), ovCard=document.getElementById('ovCard');
+function showMenu(){
+  state='menu'; ov.classList.remove('hidden');
+  ovCard.innerHTML=`<div class="title">🎃 HARUMI 2D 👻<br><span style="font-size:20px">Caça-Doces na Casa Assombrada</span></div>
+  <p class="sub">Você é <b>HARUMI ★</b> — cabelo azul-marinho, olhos rosados, fantasia caveira 💀 (a mais brilhante do jogo!)<br>
+  Explore a <b>rua Halloween</b>, entre nas <b>3 casas</b> (E) e ache os <b>18 doces 🍬 dentro das casas</b>. Fuja dos <b>fantasmas</b>!</p>
+  <div style="display:flex;justify-content:center"><canvas id="pv" width="180" height="180" class="prev" style="width:130px;height:130px"></canvas></div>
+  <div><button class="big" id="bStart">▶ COMEÇAR NA RUA 🎃</button>
+  <button class="big blue" id="bCust">🎨 CUSTOMIZAR HARUMI</button></div>
+  <p class="sub"><kbd>WASD</kbd> mover • <kbd>E</kbd> entrar/sair • <kbd>Shift</kbd> correr • <kbd>Esc</kbd> pausa<br>🍬 = moeda • Banco: <b>${save.bank}</b> • Recorde: <b>${save.best} doces</b></p>`;
+  drawPreview(document.getElementById('pv'));
+  document.getElementById('bStart').onclick=startStreet;
+  document.getElementById('bCust').onclick=showCustom;
+}
+function drawPreview(c2){
+  if(!c2) return; const x2=c2.getContext('2d'); x2.clearRect(0,0,180,180);
+  x2.fillStyle='#140f3a'; x2.fillRect(0,0,180,180);
+  const keep={ctx}; // desenha simplificado
+  x2.save(); x2.translate(90,120); x2.scale(1.6,1.6);
+  const glowC = custom.glow==='azul'?'#38e1ff':custom.glow==='dourado'?'#ffe45e':'#ff4fc3';
+  x2.shadowColor=glowC; x2.shadowBlur=18;
+  x2.fillStyle='#1c1033'; x2.fillRect(-14,-2,11,28); x2.fillRect(3,-2,11,28);
+  const dc = custom.dress==='rosa'?'#ff8fd6':custom.dress==='azul'?'#38bdf8':'#f8fafc';
+  x2.fillStyle=dc; x2.beginPath(); x2.moveTo(-10,-2); x2.lineTo(10,-2); x2.lineTo(20,22); x2.lineTo(-20,22); x2.closePath(); x2.fill();
+  x2.fillStyle='#fff'; x2.beginPath(); x2.arc(0,8,9,0,7); x2.fill();
+  x2.fillStyle='#111'; x2.beginPath(); x2.arc(-3.5,7,2.4,0,7); x2.arc(3.5,7,2.4,0,7); x2.fill();
+  x2.fillStyle='#ffe0c4'; x2.beginPath(); x2.arc(0,-30,17,0,7); x2.fill();
+  x2.fillStyle='#16265e';
+  if(custom.hair==='coques'){ x2.beginPath(); x2.arc(-16,-46,9,0,7); x2.arc(16,-46,9,0,7); x2.fill(); x2.fillRect(-18,-46,36,22); }
+  else if(custom.hair==='curto'){ x2.fillRect(-19,-52,38,20); } else { x2.fillRect(-20,-52,40,22); x2.fillRect(-22,-34,10,34); x2.fillRect(12,-34,10,34); }
+  x2.fillStyle='#ff7ac8'; x2.beginPath(); x2.arc(-6.5,-28,4.6,0,7); x2.arc(6.5,-28,4.6,0,7); x2.fill();
+  x2.font='15px serif'; x2.fillText(custom.tiara==='abobora'?'🎃':custom.tiara==='bruxa'?'🧙':'💀',-8,-46);
+  x2.restore();
+}
+function showCustom(fromPause){
+  state = fromPause?'play':'menu'; paused = !!fromPause ? true : false;
+  ov.classList.remove('hidden');
+  const opts=(t,arr,cur)=>arr.map(v=>`<div class="opt ${cur===v[0]?'sel':''}" data-k="${t}" data-v="${v[0]}"><b>${v[1]}</b><small>${v[2]}</small></div>`).join('');
+  ovCard.innerHTML=`<div class="title" style="font-size:28px">🎨 CUSTOMIZAR HARUMI ★</div>
+  <p class="sub">A Harumi é a estrela — deixe-a única! Cores do menu: azul + rosa 💙💖</p>
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+   <div><canvas id="pv2" width="180" height="180" class="prev" style="width:150px;height:150px"></canvas><p class="sub">prévia ★ brilhante</p></div>
+   <div style="flex:1;min-width:280px;text-align:left">
+    <b>💇 Cabelo azul-marinho — estilo:</b><div class="grid">${opts('hair',[['longo','Longo Y2K','clássico'],['coques','Coques','fofo 2000'],['curto','Curto','moderno']],custom.hair)}</div>
+    <b>👑 Tiara:</b><div class="grid">${opts('tiara',[['caveira','💀 Caveira','original'],['abobora','🎃 Abóbora','halloween'],['bruxa','🧙 Bruxa','mágica']],custom.tiara)}</div>
+    <b>👗 Vestido caveira:</b><div class="grid">${opts('dress',[['branco','🤍 Branco','caveira'],['rosa','🩷 Rosa','💖'],['azul','💙 Azul','💙']],custom.dress)}</div>
+    <b>✨ Brilho destaque:</b><div class="grid">${opts('glow',[['rosa','🩷 Rosa','padrão'],['azul','💙 Azul','frio'],['dourado','💛 Ouro','estrela']],custom.glow)}</div>
+   </div></div>
+  <button class="big" id="bSave">💾 SALVAR E ${fromPause?'VOLTAR':'JOGAR'}</button>
+  ${fromPause?'<button class="ghostb" id="bBack">voltar sem salvar</button>':''}`;
+  drawPreview(document.getElementById('pv2'));
+  ovCard.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{ custom[o.dataset.k]=o.dataset.v; showCustom(fromPause); });
+  document.getElementById('bSave').onclick=()=>{ persist(); beep(880,.15); if(fromPause){ov.classList.add('hidden');paused=false;} else startStreet(); };
+  const bb=document.getElementById('bBack'); if(bb) bb.onclick=()=>{ ov.classList.add('hidden'); paused=false; };
+}
+function togglePause(){
+  if(state!=='play') return;
+  if(ov.classList.contains('hidden')||!paused){ // pausar
+    paused=true; ov.classList.remove('hidden');
+    ovCard.innerHTML=`<div class="title" style="font-size:30px">⏸ PAUSA 💙💖</div>
+    <p class="sub">${mode==='street'?'Rua Halloween 🎃':'Dentro da casa 🏚️'} • Doces: <b>${P.got}/${TOTAL}</b> • Vidas: <b>${P.lives}</b></p>
+    <div class="pauseItem">
+     <button class="big" id="pGo">▶ CONTINUAR</button>
+     <button class="big blue" id="pCu">🎨 CUSTOMIZAR</button>
+    </div><div class="pauseItem">
+     <button class="ghostb" id="pRe">↻ REINICIAR</button>
+     <button class="ghostb" id="pMe">★ MENU</button>
+     <button class="ghostb" id="pMu">${muted?'🔊 SOM':'🔇 MUDO'}</button>
+    </div>
+    <p class="sub"><kbd>Esc</kbd> continuar • Harumi continua brilhando mesmo pausada ★</p>`;
+    document.getElementById('pGo').onclick=()=>{ov.classList.add('hidden');paused=false;};
+    document.getElementById('pCu').onclick=()=>showCustom(true);
+    document.getElementById('pRe').onclick=()=>{ov.classList.add('hidden');paused=false;startStreet();};
+    document.getElementById('pMe').onclick=()=>{paused=false;showMenu();};
+    document.getElementById('pMu').onclick=e=>{muted=!muted;e.target.textContent=muted?'🔊 SOM':'🔇 MUDO';};
+  } else if(paused && ovCard.querySelector('#pGo')){ ov.classList.add('hidden'); paused=false; }
+}
+document.getElementById('btnPause').onclick=togglePause;
+document.getElementById('btnCust').onclick=()=>showCustom(state==='play');
+function startStreet(){
+  P.lives=3;P.stamina=100;P.got=0;P.inv=0;parts=[];
+  buildStreet(); state='play'; paused=false; ov.classList.add('hidden');
+  talk('🎃 Rua Halloween 2000! Entre nas casas com E e ache doces DENTRO delas! 👻',2800);
+}
+function winGame(){
+  state='win'; save.best=Math.max(save.best,P.got); persist(); beep(880,.3); setTimeout(()=>beep(1100,.4),200);
+  burst(P.x,P.y,'#ffe45e',40);
+  ov.classList.remove('hidden');
+  ovCard.innerHTML=`<div class="title">🎉 HARUMI VENCEU! 🍬</div>
+  <p>Coletou <b>${P.got} doces</b> dentro das casas! Banco: <b>${save.bank} 🍬</b></p>
+  <p class="sub">Os fantasmas aplaudem a estrela ★ 💙💖</p>
+  <button class="big" id="wA">↻ JOGAR DE NOVO</button> <button class="big blue" id="wM">★ MENU</button><br>
+  <button class="ghostb" id="wC">🎨 CUSTOMIZAR HARUMI</button>`;
+  document.getElementById('wA').onclick=startStreet;
+  document.getElementById('wM').onclick=showMenu;
+  document.getElementById('wC').onclick=()=>showCustom(false);
+}
+function deadGame(){
+  state='dead'; beep(140,.5,'sawtooth');
+  ov.classList.remove('hidden');
+  ovCard.innerHTML=`<div class="title">👻 PEGO!</div><p>Os fantasmas assustaram a Harumi!<br>Doces: <b>${P.got}</b> • Banco: <b>${save.bank}</b></p>
+  <button class="big" id="dA">↻ TENTAR DE NOVO</button> <button class="big blue" id="dM">★ MENU</button>`;
+  document.getElementById('dA').onclick=startStreet;
+  document.getElementById('dM').onclick=showMenu;
+}
+// loop
+let last=performance.now();
+function loop(now){
+  requestAnimationFrame(loop);
+  let dt=Math.min((now-last)/1000,0.05); last=now;
+  if(!paused){ update(dt); render(); }
+}
+showMenu(); buildStreet(); state='menu'; render(); requestAnimationFrame(loop);
 </script>
 </body>
 </html>
