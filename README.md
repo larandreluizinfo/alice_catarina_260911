@@ -4,8 +4,7 @@ Repositório criado em 2026-09-11.
 
 ## GitHub Pages
 
-Após o push, o site ficará disponível em:
-`https://<seu-usuario>.github.io/alice_catarina_260911/`
+🎮 Jogar online: https://larandreluizinfo.github.io/alice_catarina_260911/
 
 ## Desenvolvimento
 
